@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-gray-800 bg-white;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-light;
+  }
+}
+
+/* ── n8n Chat Widget — estilos marca FINDES ─────────────────────────────────── */
+:root {
+  /* Colores base */
+  --chat--color--primary:               #1A3C6E;
+  --chat--color--primary--shade-100:    #0F2548;
+  --chat--color--primary-shade-50:      #16325c;
+  --chat--color--secondary:             #1A3C6E;
+  --chat--color-secondary-shade-50:     #0F2548;
+  --chat--color-white:                  #ffffff;
+  --chat--color-light:                  #f5f7fa;
+  --chat--color-light-shade-50:         #e8edf3;
+  --chat--color-light-shade-100:        #d0d9e6;
+  --chat--color-medium:                 #6b7a90;
+  --chat--color-dark:                   #0F2548;
+  --chat--color-disabled:               #9eafc2;
+  --chat--color-typing:                 #1A3C6E;
+
+  /* Botón flotante */
+  --chat--toggle--background:           #1A3C6E;
+  --chat--toggle--hover--background:    #0F2548;
+  --chat--toggle--active--background:   #0F2548;
+  --chat--toggle--color:                #ffffff;
+  --chat--toggle--size:                 56px;
+  --chat--toggle--width:                56px;
+  --chat--toggle--height:               56px;
+  --chat--toggle--border-radius:        50%;
+
+  /* Ventana */
+  --chat--window--width:                380px;
+  --chat--window--height:               520px;
+  --chat--window--border-radius:        16px;
+  --chat--window--border:               none;
+
+  /* Header */
+  --chat--header--background:           #1A3C6E;
+  --chat--header--color:                #ffffff;
+  --chat--header--border-bottom:        none;
+
+  /* Mensajes bot */
+  --chat--message--bot--background:     #eef2f8;
+  --chat--message--bot--color:          #0F2548;
+  --chat--message--bot--border:         #d0d9e6;
+
+  /* Mensajes usuario */
+  --chat--message--user--background:    #1A3C6E;
+  --chat--message--user--color:         #ffffff;
+  --chat--message--border-radius:       10px;
+
+  /* Input */
+  --chat--input--text-color:            #0F2548;
+  --chat--input--background:            #ffffff;
+  --chat--input--send--button--background:       #1A3C6E;
+  --chat--input--send--button--background-hover: #0F2548;
+  --chat--input--send--button--color:            #ffffff;
+
+  /* Botones primarios */
+  --chat--button--background--primary:       #1A3C6E;
+  --chat--button--background--primary--hover: #0F2548;
+  --chat--button--color--primary:            #ffffff;
+
+  /* Footer */
+  --chat--footer--background:           #f5f7fa;
+  --chat--footer--color:                #6b7a90;
+
+  /* Body */
+  --chat--body--background:             #ffffff;
+
+  /* Bordes */
+  --chat--border-radius:                10px;
+}
+
+/* Forzar color azul en el botón flotante del chat n8n */
+#n8n-chat-widget .chat-window-toggle,
+.chat-window-toggle,
+[class*="chat-toggle"],
+[class*="n8n-chat"] button[class*="toggle"],
+#n8n-chat button {
+  background-color: #1A3C6E !important;
+  color: #ffffff !important;
+}
+
+#n8n-chat-widget .chat-window-toggle:hover,
+.chat-window-toggle:hover,
+[class*="chat-toggle"]:hover,
+[class*="n8n-chat"] button[class*="toggle"]:hover {
+  background-color: #0F2548 !important;
+}
+

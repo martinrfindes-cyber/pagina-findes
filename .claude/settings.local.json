@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find '/mnt/c/Users/CID MARTIN/OneDrive/Escritorio/PAGINA FINDES' -type f 2>/dev/null)"
+    ]
+  }
+}
