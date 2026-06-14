@@ -15,9 +15,10 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
-  const curso = getCursoBySlug(params.slug)
+  const { slug } = await params
+  const curso = getCursoBySlug(slug)
   if (!curso) return { title: 'Curso no encontrado · FINDES' }
 
   const modalidadLabel = curso.modalidades.includes('Presencial')
@@ -160,8 +161,9 @@ function SidebarCard({ curso }: { curso: ReturnType<typeof getCursoBySlug> & obj
 }
 
 // ─── Página ───────────────────────────────────────────────────────────────────
-export default function CursoPage({ params }: { params: { slug: string } }) {
-  const curso = getCursoBySlug(params.slug)
+export default async function CursoPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const curso = getCursoBySlug(slug)
   if (!curso) notFound()
 
   const relacionados = getCursosByRuta(curso.rutaId)
