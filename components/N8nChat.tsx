@@ -32,7 +32,7 @@ export default function N8nChat() {
     injectScript('/n8n-chat/chat.bundle.es.js', 'n8n-chat-js').then(() => {
       const w = window as any
       if (typeof w.createChat !== 'function') return
-      w.createChat({
+      const chat = w.createChat({
         webhookUrl: WEBHOOK_URL,
         mode: 'window',
         showWelcomeScreen: true,
@@ -52,13 +52,10 @@ export default function N8nChat() {
         },
       })
 
-      // Expone función global para abrir el chat desde cualquier botón
       w.openN8nChat = () => {
-        const toggleBtn = document.querySelector('.chat-window-toggle') as HTMLElement | null
-        if (!toggleBtn) return
-        const chatWindow = document.querySelector('.chat-window') as HTMLElement | null
-        const isOpen = chatWindow && chatWindow.offsetParent !== null
-        if (!isOpen) toggleBtn.click()
+        if (chat && typeof chat.open === 'function') {
+          chat.open()
+        }
       }
     })
   }, [])
