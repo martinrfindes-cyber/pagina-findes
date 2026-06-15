@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { CheckCircle, MessageCircle, Clock, TrendingUp, ChevronDown, Sparkles, ArrowRight } from 'lucide-react'
-import { waLink } from '@/lib/constants'
+import ChatButton from '@/components/ChatButton'
 import { slugPorNombre } from '@/lib/cursos'
 
 interface Ruta {
@@ -299,19 +299,14 @@ export default function RutasAprendizaje() {
               </div>
 
               <div className="md:w-56 flex flex-col gap-3 justify-center">
-                <a
-                  href={waLink(
-                    `Hola, me interesa la ruta de ${active.nombre}. ¿Me pueden dar información sobre los cursos disponibles y próximas fechas?`
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <ChatButton
                   className="inline-flex items-center justify-center gap-2 bg-wa text-white font-bold px-5 py-3 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-sm shadow-md shadow-wa/20"
+                  iconSize={17}
                 >
-                  <MessageCircle size={17} aria-hidden="true" />
-                  Quiero información
-                </a>
+                  QUIERO INFORMACIÓN
+                </ChatButton>
                 <p className="text-xs text-gray-400 text-center">
-                  Respondemos en minutos por WhatsApp
+                  Respondemos en minutos
                 </p>
               </div>
 

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { MessageCircle, ArrowRight, RotateCcw, Sparkles } from 'lucide-react'
-import { waLink } from '@/lib/constants'
+import { ArrowRight, RotateCcw, Sparkles } from 'lucide-react'
+import ChatButton from '@/components/ChatButton'
 
 type RutaKey = 'datos' | 'rrhh' | 'contabilidad' | 'liderazgo' | 'ventas' | 'admin'
 type Step = 0 | 1 | 2 | 'result'
@@ -242,15 +242,12 @@ export default function DiagnosticoRuta() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href={waLink(res.waMsg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <ChatButton
                   className="flex-1 inline-flex items-center justify-center gap-2 bg-wa text-white font-bold px-5 py-3.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-sm shadow-lg shadow-wa/20"
+                  iconSize={17}
                 >
-                  <MessageCircle size={17} aria-hidden="true" />
-                  Quiero información sobre esta ruta
-                </a>
+                  QUIERO INFORMACIÓN
+                </ChatButton>
                 <a
                   href="#rutas"
                   className="inline-flex items-center justify-center gap-2 border-2 border-primary/20 text-primary font-semibold px-5 py-3.5 rounded-xl hover:border-primary hover:bg-primary/5 text-sm transition-all"

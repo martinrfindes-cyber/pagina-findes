@@ -1,5 +1,6 @@
-import { ArrowRight, MessageCircle, MapPin } from 'lucide-react'
-import { waLink, WA_DEFAULT_MSG, YEARS, ADDRESS } from '@/lib/constants'
+import { ArrowRight, MapPin } from 'lucide-react'
+import { YEARS, ADDRESS } from '@/lib/constants'
+import ChatButton from '@/components/ChatButton'
 
 const features = [
   { emoji: '🎓', title: 'Instructores en activo',      desc: 'Profesionistas que ejercen la materia hoy' },
@@ -74,15 +75,9 @@ export default function Hero() {
                 Encuentra tu ruta
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
-              <a
-                href={waLink(WA_DEFAULT_MSG)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-wa text-white font-bold px-6 py-3.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-base shadow-lg shadow-wa/30"
-              >
-                <MessageCircle size={18} aria-hidden="true" />
-                Hablar por WhatsApp
-              </a>
+              <ChatButton className="inline-flex items-center justify-center gap-2 bg-wa text-white font-bold px-6 py-3.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-base shadow-lg shadow-wa/30">
+                QUIERO INFORMACIÓN
+              </ChatButton>
             </div>
           </div>
 

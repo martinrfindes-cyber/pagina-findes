@@ -87,20 +87,8 @@
   --chat--border-radius:                10px;
 }
 
-/* Forzar color azul en el botón flotante del chat n8n */
-#n8n-chat-widget .chat-window-toggle,
-.chat-window-toggle,
-[class*="chat-toggle"],
-[class*="n8n-chat"] button[class*="toggle"],
-#n8n-chat button {
-  background-color: #1A3C6E !important;
-  color: #ffffff !important;
-}
-
-#n8n-chat-widget .chat-window-toggle:hover,
-.chat-window-toggle:hover,
-[class*="chat-toggle"]:hover,
-[class*="n8n-chat"] button[class*="toggle"]:hover {
-  background-color: #0F2548 !important;
+/* Ocultar el botón toggle por defecto del chat n8n — se usan los botones del sitio */
+.chat-window-toggle {
+  display: none !important;
 }
 

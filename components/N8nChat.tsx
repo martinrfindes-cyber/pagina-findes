@@ -51,6 +51,15 @@ export default function N8nChat() {
           },
         },
       })
+
+      // Expone función global para abrir el chat desde cualquier botón
+      w.openN8nChat = () => {
+        const toggleBtn = document.querySelector('.chat-window-toggle') as HTMLElement | null
+        if (!toggleBtn) return
+        const chatWindow = document.querySelector('.chat-window') as HTMLElement | null
+        const isOpen = chatWindow && chatWindow.offsetParent !== null
+        if (!isOpen) toggleBtn.click()
+      }
     })
   }, [])
 
