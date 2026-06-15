@@ -45,9 +45,10 @@ export default function WhatsAppFloat() {
         onFocus={()    => setShowTooltip(true)}
         onBlur={()     => setShowTooltip(false)}
         aria-label="Abrir asistente virtual — QUIERO INFORMACIÓN"
-        className="w-14 h-14 bg-wa rounded-full shadow-2xl shadow-wa/30 flex items-center justify-center hover:bg-wa-dark hover:scale-110 active:scale-95 transition-all duration-200 animate-bounceSlight"
+        className="bg-wa text-white font-bold px-5 py-3.5 rounded-full shadow-2xl shadow-wa/30 flex items-center gap-2 hover:bg-wa-dark hover:scale-105 active:scale-95 transition-all duration-200 animate-bounceSlight text-sm"
       >
-        <MessageCircle size={26} className="text-white" aria-hidden="true" />
+        <MessageCircle size={20} className="text-white shrink-0" aria-hidden="true" />
+        QUIERO INFORMACIÓN
       </button>
     </div>
   )
