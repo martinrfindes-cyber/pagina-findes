@@ -16,7 +16,7 @@ export default function N8nChat() {
       }
 
       const { createChat } = await import('@n8n/chat')
-      const chat = createChat({
+      createChat({
         webhookUrl: WEBHOOK_URL,
         mode: 'window',
         showWelcomeScreen: true,
@@ -36,11 +36,15 @@ export default function N8nChat() {
         },
       })
 
+      // @n8n/chat no expone un método open(); la ventana solo se abre
+      // haciendo clic en su botón flotante (.chat-window-toggle).
       const w = window as any
       w.openN8nChat = () => {
-        if (chat && typeof chat.open === 'function') {
-          chat.open()
-        }
+        const toggle = document.querySelector<HTMLElement>('.chat-window-toggle')
+        if (!toggle) return
+        const win = document.querySelector<HTMLElement>('.chat-window')
+        const isOpen = win ? getComputedStyle(win).display !== 'none' : false
+        if (!isOpen) toggle.click()
       }
     }
 
