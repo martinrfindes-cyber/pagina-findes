@@ -245,6 +245,7 @@ export default function DiagnosticoRuta() {
                 <ChatButton
                   className="flex-1 inline-flex items-center justify-center gap-2 bg-wa text-white font-bold px-5 py-3.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-sm shadow-lg shadow-wa/20"
                   iconSize={17}
+                  attributes={{ ruta_interes: res.nombre, origen: 'diagnostico' }}
                 >
                   QUIERO INFORMACIÓN
                 </ChatButton>

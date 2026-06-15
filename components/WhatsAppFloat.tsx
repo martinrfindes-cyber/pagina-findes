@@ -39,7 +39,7 @@ export default function WhatsAppFloat() {
       )}
       <button
         type="button"
-        onClick={() => (window as any).openN8nChat?.()}
+        onClick={() => (window as any).openChat?.()}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         onFocus={()    => setShowTooltip(true)}
