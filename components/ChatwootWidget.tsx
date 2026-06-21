@@ -44,8 +44,6 @@ export default function ChatwootWidget() {
         w.__chatwootPending = attributes ?? {}
       }
     }
-    // Alias por compatibilidad con cualquier llamada antigua.
-    w.openN8nChat = w.openChat
 
     const onReady = () => {
       if (w.__chatwootPending !== undefined) {
