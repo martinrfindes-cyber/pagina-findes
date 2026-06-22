@@ -20,8 +20,8 @@ export default function SocialProof() {
           ))}
           {/* Modalidades — separado para controlar el layout */}
           <div className="flex flex-col items-center gap-1">
-            <dt className="text-3xl md:text-4xl font-bold text-white whitespace-nowrap">3 modalidades</dt>
-            <dd className="text-xs sm:text-sm text-white/55 whitespace-nowrap">Presencial · Online · In Company</dd>
+            <dt className="text-2xl md:text-4xl font-bold text-white">3 modalidades</dt>
+            <dd className="text-xs sm:text-sm text-white/55 leading-snug">Presencial · Online · In Company</dd>
           </div>
         </dl>
       </div>
