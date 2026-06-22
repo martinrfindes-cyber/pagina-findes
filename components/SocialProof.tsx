@@ -11,7 +11,7 @@ export default function SocialProof() {
       aria-label="Cifras de FINDES"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <dl className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <dl className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
           {stats.map(({ value, label }) => (
             <div key={value} className="flex flex-col items-center gap-1">
               <dt className="text-3xl md:text-4xl font-bold text-white">{value}</dt>
