@@ -1,6 +1,7 @@
-import { Building2, FileText, MapPin, BarChart3, Users, Globe, MessageCircle } from 'lucide-react'
+import { Building2, FileText, MapPin, BarChart3, Users, Globe } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { waLink, WA_EMPRESAS_MSG, ADDRESS, YEARS } from '@/lib/constants'
+import { ADDRESS, YEARS } from '@/lib/constants'
+import ChatButton from '@/components/ChatButton'
 
 interface Beneficio {
   Icon:   LucideIcon
@@ -98,15 +99,13 @@ export default function CapacitacionEmpresas() {
 
         {/* ── CTA + señales de confianza ── */}
         <div className="flex flex-col items-center gap-5">
-          <a
-            href={waLink(WA_EMPRESAS_MSG)}
-            target="_blank"
-            rel="noopener noreferrer"
+          <ChatButton
             className="inline-flex items-center gap-2.5 bg-wa text-white font-bold px-8 py-4 rounded-2xl hover:bg-wa-dark active:scale-95 transition-all text-base shadow-xl shadow-wa/20"
+            iconSize={20}
+            attributes={{ ruta_interes: 'Capacitación empresas', origen: 'empresas' }}
           >
-            <MessageCircle size={20} aria-hidden="true" />
-            Solicitar cotización por WhatsApp
-          </a>
+            Cotizar capacitación para mi equipo
+          </ChatButton>
 
           {/* Trust signals */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-white/40 text-xs">
