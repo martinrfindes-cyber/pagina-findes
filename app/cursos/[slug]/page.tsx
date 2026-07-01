@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
-  CheckCircle, Clock, Monitor, MapPin, MessageCircle,
+  CheckCircle, Clock, Monitor, MapPin,
   ArrowLeft, GraduationCap, Users, Award, Video, TrendingUp,
   ChevronDown, BookOpen, Building2,
 } from 'lucide-react'
 import { getCursoBySlug, getCursosByRuta, cursos } from '@/lib/cursos'
-import { YEARS, PHONE, WA_NUMBER } from '@/lib/constants'
+import { YEARS, PHONE } from '@/lib/constants'
+import ChatButton from '@/components/ChatButton'
 
 // ─── SEO ──────────────────────────────────────────────────────────────────────
 export async function generateStaticParams() {
@@ -114,17 +115,15 @@ function SidebarCard({ curso }: { curso: ReturnType<typeof getCursoBySlug> & obj
         </div>
       </div>
 
-      <p className="text-xs text-gray-400 mb-3 text-center">Precio e inscripción vía WhatsApp</p>
+      <p className="text-xs text-gray-400 mb-3 text-center">Precio e inscripción por chat</p>
 
-      <a
-        href={curso.waMsg}
-        target="_blank"
-        rel="noopener noreferrer"
+      <ChatButton
         className="w-full inline-flex items-center justify-center gap-2 bg-wa text-white font-bold px-5 py-3.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-sm shadow-lg shadow-wa/20 mb-3"
+        iconSize={17}
+        attributes={{ curso_interes: curso.nombre, origen: 'curso' }}
       >
-        <MessageCircle size={17} aria-hidden="true" />
         Quiero inscribirme
-      </a>
+      </ChatButton>
       <p className="text-xs text-gray-400 text-center">Respondemos en minutos</p>
 
       <hr className="my-4 border-gray-100" />
@@ -138,15 +137,13 @@ function SidebarCard({ curso }: { curso: ReturnType<typeof getCursoBySlug> & obj
         <p className="text-xs text-amber-700/70 mb-3 leading-relaxed">
           Grupos In Company, temario a la medida y factura empresarial.
         </p>
-        <a
-          href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hola, me interesa el curso de ${curso.nombre} en modalidad In Company para capacitar a mi equipo. ¿Me pueden dar información y cotización?`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <ChatButton
           className="w-full inline-flex items-center justify-center gap-1.5 bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-amber-800 transition-colors"
+          iconSize={13}
+          attributes={{ curso_interes: curso.nombre, origen: 'curso', tipo: 'In Company' }}
         >
-          <MessageCircle size={13} aria-hidden="true" />
           Solicitar cotización
-        </a>
+        </ChatButton>
       </div>
 
       <Link
@@ -178,15 +175,13 @@ export default async function CursoPage({ params }: { params: Promise<{ slug: st
           <Link href="/" className="font-extrabold text-2xl tracking-tight text-primary" aria-label="FINDES — Inicio">
             FINDES
           </Link>
-          <a
-            href={curso.waMsg}
-            target="_blank"
-            rel="noopener noreferrer"
+          <ChatButton
             className="hidden sm:inline-flex items-center gap-2 bg-wa text-white font-bold px-5 py-2.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-sm shadow-md shadow-wa/20"
+            iconSize={16}
+            attributes={{ curso_interes: curso.nombre, origen: 'curso' }}
           >
-            <MessageCircle size={16} aria-hidden="true" />
             Quiero inscribirme
-          </a>
+          </ChatButton>
         </div>
       </header>
 
@@ -496,15 +491,13 @@ export default async function CursoPage({ params }: { params: Promise<{ slug: st
                   ))}
                 </ul>
 
-                <a
-                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hola, me interesa el curso de ${curso.nombre} en modalidad In Company para capacitar a mi equipo. ¿Me pueden dar información y cotización?`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <ChatButton
                   className="inline-flex items-center gap-2 bg-amber-700 text-white font-bold px-6 py-3 rounded-xl hover:bg-amber-800 active:scale-95 transition-all text-sm shadow-md"
+                  iconSize={16}
+                  attributes={{ curso_interes: curso.nombre, origen: 'curso', tipo: 'In Company' }}
                 >
-                  <MessageCircle size={16} aria-hidden="true" />
                   Solicitar cotización empresarial
-                </a>
+                </ChatButton>
                 <p className="text-xs text-amber-700/60 mt-2">+500 empresas capacitadas · Respondemos en minutos</p>
               </section>
 
@@ -521,7 +514,7 @@ export default async function CursoPage({ params }: { params: Promise<{ slug: st
                   ¿Listo para cambiar tu situación profesional?
                 </h2>
                 <p className="text-white/60 text-sm text-center mb-2 leading-relaxed max-w-md mx-auto">
-                  Escríbenos por WhatsApp para conocer fechas, horarios y precio del próximo grupo.
+                  Escríbenos por chat para conocer fechas, horarios y precio del próximo grupo.
                 </p>
                 <p className="text-center mb-7">
                   <span className="inline-block bg-white/10 text-white/80 text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -530,15 +523,13 @@ export default async function CursoPage({ params }: { params: Promise<{ slug: st
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                  <a
-                    href={curso.waMsg}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <ChatButton
                     className="inline-flex items-center gap-2.5 bg-wa text-white font-bold px-8 py-4 rounded-2xl hover:bg-wa-dark active:scale-95 transition-all text-base shadow-xl shadow-wa/20"
+                    iconSize={20}
+                    attributes={{ curso_interes: curso.nombre, origen: 'curso' }}
                   >
-                    <MessageCircle size={20} aria-hidden="true" />
-                    Quiero inscribirme por WhatsApp
-                  </a>
+                    Quiero inscribirme
+                  </ChatButton>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-white/35 text-xs mt-5">
@@ -617,15 +608,13 @@ export default async function CursoPage({ params }: { params: Promise<{ slug: st
 
       {/* ── CTA sticky — solo móvil ── */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200 shadow-2xl px-4 py-3">
-        <a
-          href={curso.waMsg}
-          target="_blank"
-          rel="noopener noreferrer"
+        <ChatButton
           className="w-full inline-flex items-center justify-center gap-2.5 bg-wa text-white font-bold px-5 py-3.5 rounded-xl hover:bg-wa-dark active:scale-95 transition-all text-sm shadow-lg shadow-wa/25"
+          iconSize={18}
+          attributes={{ curso_interes: curso.nombre, origen: 'curso' }}
         >
-          <MessageCircle size={18} aria-hidden="true" />
-          Quiero inscribirme · WhatsApp
-        </a>
+          Quiero inscribirme
+        </ChatButton>
       </div>
     </>
   )
