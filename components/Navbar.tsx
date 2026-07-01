@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
+import CursoSearch from './CursoSearch'
 
 const navLinks = [
   { label: 'Rutas de Aprendizaje', href: '/#rutas' },
@@ -73,6 +74,7 @@ export default function Navbar() {
             >
               Para Empresas
             </a>
+            <CursoSearch scrolled={scrolled} variant="desktop" />
           </div>
 
           {/* Mobile hamburger */}
@@ -93,6 +95,7 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 shadow-lg">
           <div className="px-4 pt-2 pb-4 flex flex-col">
+            <CursoSearch variant="mobile" onNavigate={() => setIsOpen(false)} />
             {navLinks.map((link) => (
               <a
                 key={link.href}
