@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { Clock, MessageCircle, ArrowRight, CalendarDays } from 'lucide-react'
-import { waLink } from '@/lib/constants'
+import { Clock, ArrowRight, CalendarDays } from 'lucide-react'
 import { slugPorNombre } from '@/lib/cursos'
+import ChatButton from '@/components/ChatButton'
 
 // ── Para actualizar: cambia nombre, modalidad y duracion. Sin fechas fijas.
 interface CursoDestacado {
@@ -96,15 +96,13 @@ export default function ProximosCursos() {
                 </div>
 
                 <div className="mt-auto flex flex-col gap-2">
-                  <a
-                    href={waLink(`Hola, me interesa el curso de ${curso.nombre}. ¿Cuándo abre el próximo grupo?`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <ChatButton
                     className="inline-flex items-center justify-center gap-2 bg-primary text-white font-semibold px-4 py-2.5 rounded-xl hover:bg-primary-dark active:scale-95 transition-all text-sm"
+                    iconSize={15}
+                    attributes={{ curso_interes: curso.nombre, origen: 'proximos-cursos' }}
                   >
-                    <MessageCircle size={15} aria-hidden="true" />
                     Consultar próxima fecha
-                  </a>
+                  </ChatButton>
                   {slug && (
                     <Link
                       href={`/cursos/${slug}`}
