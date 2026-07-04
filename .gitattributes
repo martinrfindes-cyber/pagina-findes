@@ -1,0 +1,13 @@
+# Normaliza los fines de línea: LF dentro del repo, nativo al hacer checkout.
+# Elimina el aviso "LF will be replaced by CRLF" en Windows.
+* text=auto
+
+# Archivos binarios: git no debe tocar sus fines de línea.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
