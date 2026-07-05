@@ -533,11 +533,6 @@
             "node": "Extraer datos del lead",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "TW: preparar lead",
-            "type": "main",
-            "index": 0
           }
         ]
       ]

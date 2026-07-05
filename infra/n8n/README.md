@@ -7,6 +7,15 @@ Backup versionado del workflow que corre el **chatbot de la página FINDES** y l
 - **Instancia n8n:** `https://n8n-n8n.7yidoh.easypanel.host` (Easypanel)
 - **ID del workflow:** `7L8AIEufiiKI3R3G`
 
+> [!] **Estado actual (jul 2026): la rama de Twenty + Telegram está PAUSADA.**
+> El CRM de base es el dashboard `findes-crm-dashboard` + Google Sheet; Twenty es
+> solo demo para clientes. La rama sigue en el JSON (nodos `TW: *`) pero
+> **desconectada**: no hay conexión `Traer historial → TW: preparar lead`.
+> **Para re-activarla:** agregar de nuevo el destino
+> `{ "node": "TW: preparar lead", "type": "main", "index": 0 }` dentro de
+> `connections["Traer historial"].main[0]` (junto a `Extraer datos del lead`),
+> luego `PUT` + `activate`. El bot y la sync a Chatwoot siguen activos siempre.
+
 ## Qué hace
 
 Cuando entra un mensaje desde el chat de la web (webhook de Chatwoot):
