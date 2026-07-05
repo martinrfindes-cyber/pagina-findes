@@ -1,0 +1,641 @@
+{
+  "name": "PAG-FIND-CHATWOOT",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.content }}",
+        "options": {
+          "systemMessage": "=Eres \"Asistente FINDES\", el asesor virtual de FINDES, un centro de\ncapacitación profesional en México con 34 años de experiencia. Atiendes a\nvisitantes de la página web que tienen dudas sobre los cursos.\n\n## Tu objetivo\n1. Resolver dudas sobre los cursos usando SOLO el catálogo que se te da.\n2. Orientar a la persona hacia el curso o la ruta que mejor le conviene.\n3. Capturar de forma natural el nombre y un contacto (WhatsApp o correo)\n   de quien muestra interés, para que un asesor le dé seguimiento.\n\n## Tono\nCercano, profesional y claro. Hablas de \"tú\". Respuestas breves (2-4\nfrases). Sin tecnicismos innecesarios. Eres mexicano, cálido pero serio.\n\n## Lo que SÍ puedes decir (está en el catálogo)\n- Qué cursos y rutas existen, a quién van dirigidos, qué van a lograr.\n- El temario, la duración (en horas) y las modalidades\n  (Presencial / Online en Vivo / In Company).\n\n## Lo que NO debes hacer NUNCA\n- NO inventes fechas de inicio, horarios ni precios: ESA INFORMACIÓN NO LA\n  TIENES. Si te la piden, di con naturalidad que un asesor se la comparte\n  al instante por WhatsApp, y pide su nombre y número para canalizarla.\n- NO inventes cursos, descuentos, certificaciones ni datos que no estén en\n  el catálogo.\n- Si no sabes algo, dilo y ofrece pasar la conversación con un asesor.\n\n## Cómo recomendar\nSi la persona describe su trabajo o su meta (\"soy de RH\", \"quiero un mejor\nempleo administrativo\", \"manejo datos en Excel\"), identifica la RUTA que\nencaja y sugiérele 1-2 cursos concretos, explicando en una frase por qué.\n\n## Captura de lead (importante)\nCuando notes interés real en un curso, pide de forma natural:\n\"¿Me compartes tu nombre y un WhatsApp o correo para que un asesor te envíe\nlos detalles de fechas y precios?\" No seas insistente; pídelo una vez.\n\n## Contacto FINDES (por si lo necesitas)\nWhatsApp/Tel: (55) 6987 8100 · Correo: informes@findes.org\nReforma 403, Int. 206, Col. Cuauhtémoc, CDMX."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -208,
+        -256
+      ],
+      "id": "2eb9e110-ce84-4ac9-af10-60d774ada490",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        -64
+      ],
+      "id": "670f3141-3e94-4519-a373-11543a40ba51",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "JFfw6OoDk78HgEwY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.conversation.id }}",
+        "contextWindowLength": 9
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -128,
+        -64
+      ],
+      "id": "b345342d-e0f8-4295-ab83-b64cb855315d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "BFYaH6upbVumiJGi",
+          "mode": "list",
+          "cachedResultName": "findes precios",
+          "cachedResultUrl": "/projects/9kWO3kNIAXDxg5lA/datatables/BFYaH6upbVumiJGi"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}"
+      },
+      "type": "n8n-nodes-base.dataTableTool",
+      "typeVersion": 1.1,
+      "position": [
+        16,
+        -64
+      ],
+      "id": "6eb8d144-9c3f-4871-86ab-56f0a6445179",
+      "name": "FINDESS PRECIOS"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6b06a583-969b-47af-a6bd-fa49908b5a13",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -928,
+        -208
+      ],
+      "id": "0954cef7-2fef-4e5b-a577-dab8bebabda1",
+      "name": "Webhook",
+      "webhookId": "6b06a583-969b-47af-a6bd-fa49908b5a13"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0f1fa040-63a5-419b-862e-e7ea6a2a3c14",
+              "leftValue": "={{ $json.body.message_type }}",
+              "rightValue": "incoming",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "26129048-842e-4c77-9bc3-a46f0453e506",
+              "leftValue": "={{ $json.body.conversation?.custom_attributes?.ia_pausada === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -720,
+        -208
+      ],
+      "id": "472cab4a-5edf-41dc-a68f-4ef0e865efab",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+        "sendHeaders": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "message_type",
+              "value": "outgoing"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        -208
+      ],
+      "id": "d4168be3-1720-403f-9103-5e6be7fdcc13",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "cQ3lACiNiOOepSVv",
+          "name": "Chatwoot FINDES (api_access_token)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch } }];"
+      },
+      "id": "4d66e8c6-97db-4001-85ec-52f1d2dde768",
+      "name": "Extraer datos del lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/contacts/{{ $json.contactId }}",
+        "sendHeaders": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.patch) }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "d5e0db70-09a8-450f-a256-7210d345dfd6",
+      "name": "Actualizar contacto en Chatwoot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -464,
+        96
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -690,
+        96
+      ],
+      "id": "4c63986d-1f62-46c3-8f35-979c224df638",
+      "name": "Traer historial",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrae el lead del historial (nombre / telefono MX / correo / empresa) para Twenty.\n// Devuelve [] si no hay ningun dato de contacto (correo o telefono).\nconst hist = ($('Traer historial').first().json.payload || [])\n  .map(m => ({ t: m.message_type, c: m.content, at: m.created_at }))\n  .sort((a, b) => (a.at || 0) - (b.at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\nconst visitante = hist.filter(m => m.t === 0 && m.c).map(m => m.c);\n\nconst capitalizar = (n) => n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\", \"sí\", \"no\", \"ok\", \"okay\", \"hola\", \"gracias\", \"ambas\", \"ambos\", \"claro\", \"dale\", \"listo\", \"bien\", \"perfecto\", \"ninguno\", \"ninguna\", \"nada\", \"online\", \"presencial\"]);\nconst esAuto = (n) => { if (!n) return true; const s = String(n).trim(); return /^[a-z]+-[a-z]+-\\d+$/.test(s) || /^visitante/i.test(s); };\n\nlet nombre = null;\nfor (const t of visitante) { const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE); if (m) { nombre = capitalizar(m[1].trim()); break; } }\nif (!nombre) {\n  for (let i = 0; i < hist.length - 1 && !nombre; i++) {\n    const m = hist[i]; if (m.t !== 1 || !m.c || !PIDE_NOMBRE_RE.test(m.c)) continue;\n    for (let j = i + 1; j < hist.length; j++) {\n      const r = hist[j]; if (r.t !== 0 || !r.c) continue;\n      const c = r.c.trim().replace(/[.,!?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\nif (!nombre && !esAuto(sender.name)) nombre = capitalizar(String(sender.name));\n\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet tel10 = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let d = c.replace(/\\D/g, '');\n    if (d.length === 13 && d.startsWith('521')) d = d.slice(3);\n    else if (d.length === 12 && d.startsWith('52')) d = d.slice(2);\n    if (d.length === 10) { tel10 = d; break; }\n  }\n  if (tel10) break;\n}\nif (!tel10 && sender.phone_number) {\n  let d = String(sender.phone_number).replace(/\\D/g, '');\n  if (d.length === 13 && d.startsWith('521')) d = d.slice(3);\n  else if (d.length === 12 && d.startsWith('52')) d = d.slice(2);\n  if (d.length === 10) tel10 = d;\n}\n\nlet email = null;\nfor (const t of visitante) { const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/); if (m) { email = m[0].toLowerCase(); break; } }\nif (!email && sender.email) email = String(sender.email).toLowerCase();\n\nlet empresa = null;\nconst EMP_RE = /\\b(?:empresa|compañía|compania|negocio)\\s*(?:es|:|se llama)?\\s+([A-Za-zÁÉÍÓÚÑáéíóúñ0-9][\\wÁÉÍÓÚÑáéíóúñ .&-]{1,40})/i;\nconst EMP_TRAB_RE = /\\btrabajo en\\s+([A-Za-zÁÉÍÓÚÑáéíóúñ0-9][\\wÁÉÍÓÚÑáéíóúñ .&-]{1,40})/i;\nfor (const t of visitante) { const m = t.match(EMP_RE) || t.match(EMP_TRAB_RE); if (m) { empresa = m[1].trim().replace(/[.,]+$/, '').trim(); break; } }\n\nif (!email && !tel10) return [];\n\nconst first = nombre ? nombre.split(/\\s+/)[0] : '';\nconst last = nombre ? nombre.split(/\\s+/).slice(1).join(' ') : '';\n\nreturn [{ json: { first, last, nombre, email, tel10, empresa, companyName: empresa || '' } }];"
+      },
+      "id": "aa000001-0000-4000-8000-000000000001",
+      "name": "TW: preparar lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://n8n-twenty.7yidoh.easypanel.host/rest/companies?limit=1&filter=' + encodeURIComponent('name[eq]:' + ($json.companyName || '__no_company__')) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "aa000002-0000-4000-8000-000000000002",
+      "name": "TW: buscar empresa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -240,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "l4RMZL816a4pXtSm",
+          "name": "Twenty API (n8n-leads)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "={{ (($('TW: preparar lead').item.json.companyName || '') !== '') && ((($json.data && $json.data.companies) || []).length === 0) ? 'POST' : 'GET' }}",
+        "url": "={{ (($('TW: preparar lead').item.json.companyName || '') !== '') && ((($json.data && $json.data.companies) || []).length === 0) ? 'https://n8n-twenty.7yidoh.easypanel.host/rest/companies' : 'https://n8n-twenty.7yidoh.easypanel.host/rest/companies?limit=1' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ name: $('TW: preparar lead').item.json.companyName }) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "aa000003-0000-4000-8000-000000000003",
+      "name": "TW: crear empresa",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -20,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "l4RMZL816a4pXtSm",
+          "name": "Twenty API (n8n-leads)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('TW: preparar lead').first().json;\nconst buscar = $('TW: buscar empresa').first().json || {};\nconst crear = $('TW: crear empresa').first().json || {};\nconst foundCo = buscar.data && buscar.data.companies && buscar.data.companies[0];\nconst createdCo = crear.data && crear.data.createCompany;\nconst companyId = (createdCo && createdCo.id) || (foundCo && foundCo.id) || null;\n\nlet personFilter;\nif (lead.email && lead.tel10) personFilter = 'or(emails.primaryEmail[eq]:' + lead.email + ',phones.primaryPhoneNumber[eq]:' + lead.tel10 + ')';\nelse if (lead.email) personFilter = 'emails.primaryEmail[eq]:' + lead.email;\nelse personFilter = 'phones.primaryPhoneNumber[eq]:' + lead.tel10;\n\nreturn [{ json: Object.assign({}, lead, { companyId, personFilter }) }];"
+      },
+      "id": "aa000004-0000-4000-8000-000000000004",
+      "name": "TW: resolver empresa",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://n8n-twenty.7yidoh.easypanel.host/rest/people?limit=1&filter=' + encodeURIComponent($json.personFilter) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "aa000005-0000-4000-8000-000000000005",
+      "name": "TW: buscar persona",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        420,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "l4RMZL816a4pXtSm",
+          "name": "Twenty API (n8n-leads)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('TW: resolver empresa').first().json;\nconst resp = $json || {};\nconst found = resp.data && resp.data.people && resp.data.people[0];\nconst first = lead.first || '';\nconst last = lead.last || '';\nconst phones = lead.tel10 ? { primaryPhoneNumber: lead.tel10, primaryPhoneCountryCode: 'MX', primaryPhoneCallingCode: '+52' } : null;\n\nlet method, path, bodyObj;\nif (found) {\n  method = 'PATCH'; path = '/people/' + found.id; bodyObj = {};\n  if (first && !(found.name && found.name.firstName)) bodyObj.name = { firstName: first, lastName: last };\n  if (lead.email && !(found.emails && found.emails.primaryEmail)) bodyObj.emails = { primaryEmail: lead.email };\n  if (phones && !(found.phones && found.phones.primaryPhoneNumber)) bodyObj.phones = phones;\n  if (lead.companyId && !found.companyId) bodyObj.companyId = lead.companyId;\n  if (Object.keys(bodyObj).length === 0) return [];\n} else {\n  method = 'POST'; path = '/people'; bodyObj = { name: { firstName: first, lastName: last } };\n  if (lead.email) bodyObj.emails = { primaryEmail: lead.email };\n  if (phones) bodyObj.phones = phones;\n  if (lead.companyId) bodyObj.companyId = lead.companyId;\n}\nreturn [{ json: { method, path, body: bodyObj } }];"
+      },
+      "id": "aa000006-0000-4000-8000-000000000006",
+      "name": "TW: armar upsert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "={{ $json.method }}",
+        "url": "={{ 'https://n8n-twenty.7yidoh.easypanel.host/rest' + $json.path }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "aa000007-0000-4000-8000-000000000007",
+      "name": "TW: upsert persona",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        860,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "l4RMZL816a4pXtSm",
+          "name": "Twenty API (n8n-leads)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc000001-0000-4000-8000-000000000001",
+              "leftValue": "={{ !!($json.data && $json.data.createPerson && $json.data.createPerson.id) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bb000001-0000-4000-8000-000000000001",
+      "name": "TW: ¿lead nuevo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1080,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "7612545350",
+        "text": "=🟢 *Lead nuevo — FINDES*\n\n👤 {{ $('TW: preparar lead').item.json.nombre || 'Sin nombre' }}\n📧 {{ $('TW: preparar lead').item.json.email || '—' }}\n📱 {{ $('TW: preparar lead').item.json.tel10 ? ('+52 ' + $('TW: preparar lead').item.json.tel10) : '—' }}\n🏢 {{ $('TW: preparar lead').item.json.empresa || '—' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "bb000002-0000-4000-8000-000000000002",
+      "name": "TW: aviso Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1300,
+        240
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "4oro3OGKq2lGSM5k",
+          "name": "AVISO FINDES"
+        }
+      },
+      "webhookId": "57a706ac-4977-436e-8047-0be7dd8fe509"
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FINDESS PRECIOS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Traer historial",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer datos del lead": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contacto en Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contacto en Chatwoot": {
+      "main": [
+        []
+      ]
+    },
+    "Traer historial": {
+      "main": [
+        [
+          {
+            "node": "Extraer datos del lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TW: preparar lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: preparar lead": {
+      "main": [
+        [
+          {
+            "node": "TW: buscar empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: buscar empresa": {
+      "main": [
+        [
+          {
+            "node": "TW: crear empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: crear empresa": {
+      "main": [
+        [
+          {
+            "node": "TW: resolver empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: resolver empresa": {
+      "main": [
+        [
+          {
+            "node": "TW: buscar persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: buscar persona": {
+      "main": [
+        [
+          {
+            "node": "TW: armar upsert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: armar upsert": {
+      "main": [
+        [
+          {
+            "node": "TW: upsert persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: upsert persona": {
+      "main": [
+        [
+          {
+            "node": "TW: ¿lead nuevo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TW: ¿lead nuevo?": {
+      "main": [
+        [
+          {
+            "node": "TW: aviso Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
