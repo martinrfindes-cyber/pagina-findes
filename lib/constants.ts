@@ -5,6 +5,10 @@ export const EMAIL     = 'informes@findes.org'
 export const ADDRESS   = 'Paseo de la Reforma 403, Int. 206, Col. Cuauhtémoc, CDMX'
 export const YEARS     = '34'
 
+// ── URL pública del sitio (para SEO: metadataBase, sitemap, canonical) ────────
+// Se puede sobreescribir con NEXT_PUBLIC_SITE_URL en el entorno.
+export const SITE_URL  = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://findes.org').replace(/\/$/, '')
+
 // ── Mensajes de WhatsApp pre-llenados ────────────────────────────────────────
 export const WA_DEFAULT_MSG  = 'Hola, me gustaría obtener información sobre los cursos de FINDES.'
 export const WA_EMPRESAS_MSG = 'Hola, me interesa conocer las opciones de capacitación in-company para mi empresa. ¿Me pueden dar más información?'
