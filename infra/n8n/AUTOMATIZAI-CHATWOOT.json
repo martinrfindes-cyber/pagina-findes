@@ -1,0 +1,689 @@
+{
+  "updatedAt": "2026-07-11T07:56:10.339Z",
+  "createdAt": "2026-07-11T06:37:34.712Z",
+  "id": "cyATBuZhuVf222O4",
+  "name": "AUTOMATIZAI-CHATWOOT",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.content }}",
+        "options": {
+          "systemMessage": "Eres el asistente virtual de AUTOMATIZAI, una agencia mexicana que crea asistentes virtuales inteligentes (chatbots con IA), mini aplicaciones a medida y páginas web profesionales para negocios. Atiendes a visitantes de la página automatizai.com.mx.\n\n## Tu objetivo\n1. Resolver las dudas del visitante de forma clara y cálida.\n2. Acompañarlo hasta el siguiente paso: coordinar un diagnóstico gratuito y sin compromiso.\n3. Capturar de forma natural, un dato a la vez: su NOMBRE, si tiene una EMPRESA (y cómo se llama), QUÉ le gustaría automatizar o resolver en su negocio, y un CONTACTO (su WhatsApp o su correo) para que un asesor le dé seguimiento.\n\n## Tono y estilo\n- Español de México, cercano, cálido y profesional. Háblale de \"tú\".\n- Respuestas BREVES (2-4 frases). Nada de textos largos ni listas enormes.\n- Usa emojis con moderación (1 por mensaje como mucho).\n\n## Qué ofrece AUTOMATIZAI\n1. Chatbot Personalizado: asistente inteligente que responde consultas 24/7, filtra clientes interesados y agenda citas. Respuestas en menos de 3 segundos, a la medida del negocio.\n2. Mini Apps a Medida: aplicaciones ligeras para automatizar tareas repetitivas. Listas en días, no en meses.\n3. Páginas Web Profesionales: sitios modernos, rápidos y optimizados para SEO que convierten visitantes en clientes.\n\n## Cómo trabajan (proceso de 7 días)\n- Día 1-2: Análisis del negocio, clientes y procesos.\n- Día 3-5: Creación y configuración del asistente a medida.\n- Día 7: Lanzamiento, capacitación del equipo y monitoreo inicial.\n\n## Precios\nNO hay precio fijo: todo se hace a la medida porque cada negocio es distinto. El primer paso siempre es un diagnóstico gratuito y sin compromiso. NUNCA inventes cifras ni des un precio específico; explica que depende del proyecto y que el diagnóstico es gratis.\n\n## Sectores donde funciona\nSalud, inmobiliarias, e-commerce, educación, servicios y consultoría. En general, cualquier negocio que atienda clientes y pierda tiempo o ventas por no responder a tiempo.\n\n## Cómo capturar el lead (MUY IMPORTANTE)\nCuando la persona muestre interés o quiera avanzar, agendar o pedir el diagnóstico, guíala de forma natural y sin sonar a formulario. A lo largo de la charla procura obtener:\n- su nombre,\n- si tiene una empresa y cómo se llama,\n- qué le gustaría automatizar o qué problema quiere resolver,\n- y un contacto para que un asesor le escriba (su número de WhatsApp o su correo).\nPídelos un dato a la vez, no todos de golpe. Cuando te los dé, agradece y confírmale que un asesor de AUTOMATIZAI le escribirá pronto para coordinar el diagnóstico gratuito.\n\n## Reglas importantes\n- No inventes información que no esté aquí. Si no sabes algo, dilo con naturalidad y ofrece coordinar el diagnóstico gratuito.\n- No prometas precios, ni plazos exactos fuera de los 7 días, ni funciones que no se mencionan.\n- No uses enlaces ni URLs.\n- Mantén siempre el foco en ayudar al negocio del visitante y en llevarlo al diagnóstico gratuito.\n- Responde en el mismo idioma en que te escriba el visitante (por defecto, español)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -208,
+        -256
+      ],
+      "id": "2eb9e110-ce84-4ac9-af10-60d774ada490",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        -64
+      ],
+      "id": "670f3141-3e94-4519-a373-11543a40ba51",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "iHv1bkAxAEnjRbsX",
+          "name": "OpenAI AutomatizAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.conversation.id }}",
+        "contextWindowLength": 9
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -128,
+        -64
+      ],
+      "id": "b345342d-e0f8-4295-ab83-b64cb855315d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "986c1b30-4a2e-4ae1-80b3-bec54afd104c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -928,
+        -208
+      ],
+      "id": "0954cef7-2fef-4e5b-a577-dab8bebabda1",
+      "name": "Webhook",
+      "webhookId": "986c1b30-4a2e-4ae1-80b3-bec54afd104c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0f1fa040-63a5-419b-862e-e7ea6a2a3c14",
+              "leftValue": "={{ $json.body.message_type }}",
+              "rightValue": "incoming",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "26129048-842e-4c77-9bc3-a46f0453e506",
+              "leftValue": "={{ $json.body.conversation?.custom_attributes?.ia_pausada === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -720,
+        -208
+      ],
+      "id": "472cab4a-5edf-41dc-a68f-4ef0e865efab",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+        "sendHeaders": false,
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "message_type",
+              "value": "outgoing"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        -208
+      ],
+      "id": "d4168be3-1720-403f-9103-5e6be7fdcc13",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "N0vrn5JbpnLimAsv",
+          "name": "Chatwoot AutomatizAI (bot api_access_token)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch } }];"
+      },
+      "id": "4d66e8c6-97db-4001-85ec-52f1d2dde768",
+      "name": "Extraer datos del lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/contacts/{{ $json.contactId }}",
+        "sendHeaders": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.patch) }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "id": "d5e0db70-09a8-450f-a256-7210d345dfd6",
+      "name": "Actualizar contacto en Chatwoot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -464,
+        96
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -690,
+        96
+      ],
+      "id": "4c63986d-1f62-46c3-8f35-979c224df638",
+      "name": "Traer historial",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Traer historial",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer datos del lead": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contacto en Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contacto en Chatwoot": {
+      "main": [
+        []
+      ]
+    },
+    "Traer historial": {
+      "main": [
+        [
+          {
+            "node": "Extraer datos del lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": null,
+  "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+  "activeVersionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+  "versionCounter": 3,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "shared": [
+    {
+      "updatedAt": "2026-07-11T06:37:34.715Z",
+      "createdAt": "2026-07-11T06:37:34.715Z",
+      "role": "workflow:owner",
+      "workflowId": "cyATBuZhuVf222O4",
+      "projectId": "9kWO3kNIAXDxg5lA",
+      "project": {
+        "updatedAt": "2025-06-29T00:44:42.647Z",
+        "createdAt": "2025-06-28T20:21:20.270Z",
+        "id": "9kWO3kNIAXDxg5lA",
+        "name": "N8N romero urrutia <martinnegocios0@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-07-11T07:56:10.343Z",
+    "createdAt": "2026-07-11T07:56:10.343Z",
+    "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+    "workflowId": "cyATBuZhuVf222O4",
+    "nodes": [
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.body.content }}",
+          "options": {
+            "systemMessage": "Eres el asistente virtual de AUTOMATIZAI, una agencia mexicana que crea asistentes virtuales inteligentes (chatbots con IA), mini aplicaciones a medida y páginas web profesionales para negocios. Atiendes a visitantes de la página automatizai.com.mx.\n\n## Tu objetivo\n1. Resolver las dudas del visitante de forma clara y cálida.\n2. Acompañarlo hasta el siguiente paso: coordinar un diagnóstico gratuito y sin compromiso.\n3. Capturar de forma natural, un dato a la vez: su NOMBRE, si tiene una EMPRESA (y cómo se llama), QUÉ le gustaría automatizar o resolver en su negocio, y un CONTACTO (su WhatsApp o su correo) para que un asesor le dé seguimiento.\n\n## Tono y estilo\n- Español de México, cercano, cálido y profesional. Háblale de \"tú\".\n- Respuestas BREVES (2-4 frases). Nada de textos largos ni listas enormes.\n- Usa emojis con moderación (1 por mensaje como mucho).\n\n## Qué ofrece AUTOMATIZAI\n1. Chatbot Personalizado: asistente inteligente que responde consultas 24/7, filtra clientes interesados y agenda citas. Respuestas en menos de 3 segundos, a la medida del negocio.\n2. Mini Apps a Medida: aplicaciones ligeras para automatizar tareas repetitivas. Listas en días, no en meses.\n3. Páginas Web Profesionales: sitios modernos, rápidos y optimizados para SEO que convierten visitantes en clientes.\n\n## Cómo trabajan (proceso de 7 días)\n- Día 1-2: Análisis del negocio, clientes y procesos.\n- Día 3-5: Creación y configuración del asistente a medida.\n- Día 7: Lanzamiento, capacitación del equipo y monitoreo inicial.\n\n## Precios\nNO hay precio fijo: todo se hace a la medida porque cada negocio es distinto. El primer paso siempre es un diagnóstico gratuito y sin compromiso. NUNCA inventes cifras ni des un precio específico; explica que depende del proyecto y que el diagnóstico es gratis.\n\n## Sectores donde funciona\nSalud, inmobiliarias, e-commerce, educación, servicios y consultoría. En general, cualquier negocio que atienda clientes y pierda tiempo o ventas por no responder a tiempo.\n\n## Cómo capturar el lead (MUY IMPORTANTE)\nCuando la persona muestre interés o quiera avanzar, agendar o pedir el diagnóstico, guíala de forma natural y sin sonar a formulario. A lo largo de la charla procura obtener:\n- su nombre,\n- si tiene una empresa y cómo se llama,\n- qué le gustaría automatizar o qué problema quiere resolver,\n- y un contacto para que un asesor le escriba (su número de WhatsApp o su correo).\nPídelos un dato a la vez, no todos de golpe. Cuando te los dé, agradece y confírmale que un asesor de AUTOMATIZAI le escribirá pronto para coordinar el diagnóstico gratuito.\n\n## Reglas importantes\n- No inventes información que no esté aquí. Si no sabes algo, dilo con naturalidad y ofrece coordinar el diagnóstico gratuito.\n- No prometas precios, ni plazos exactos fuera de los 7 días, ni funciones que no se mencionan.\n- No uses enlaces ni URLs.\n- Mantén siempre el foco en ayudar al negocio del visitante y en llevarlo al diagnóstico gratuito.\n- Responde en el mismo idioma en que te escriba el visitante (por defecto, español)."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          -208,
+          -256
+        ],
+        "id": "2eb9e110-ce84-4ac9-af10-60d774ada490",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-5-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          -272,
+          -64
+        ],
+        "id": "670f3141-3e94-4519-a373-11543a40ba51",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "iHv1bkAxAEnjRbsX",
+            "name": "OpenAI AutomatizAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $json.body.conversation.id }}",
+          "contextWindowLength": 9
+        },
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.4,
+        "position": [
+          -128,
+          -64
+        ],
+        "id": "b345342d-e0f8-4295-ab83-b64cb855315d",
+        "name": "Simple Memory"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "986c1b30-4a2e-4ae1-80b3-bec54afd104c",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -928,
+          -208
+        ],
+        "id": "0954cef7-2fef-4e5b-a577-dab8bebabda1",
+        "name": "Webhook",
+        "webhookId": "986c1b30-4a2e-4ae1-80b3-bec54afd104c"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "0f1fa040-63a5-419b-862e-e7ea6a2a3c14",
+                "leftValue": "={{ $json.body.message_type }}",
+                "rightValue": "incoming",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              },
+              {
+                "id": "26129048-842e-4c77-9bc3-a46f0453e506",
+                "leftValue": "={{ $json.body.conversation?.custom_attributes?.ia_pausada === true }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "false",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          -720,
+          -208
+        ],
+        "id": "472cab4a-5edf-41dc-a68f-4ef0e865efab",
+        "name": "Filter"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+          "sendHeaders": false,
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "content",
+                "value": "={{ $json.output }}"
+              },
+              {
+                "name": "message_type",
+                "value": "outgoing"
+              }
+            ]
+          },
+          "options": {},
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth"
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          144,
+          -208
+        ],
+        "id": "d4168be3-1720-403f-9103-5e6be7fdcc13",
+        "name": "HTTP Request",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "N0vrn5JbpnLimAsv",
+            "name": "Chatwoot AutomatizAI (bot api_access_token)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch } }];"
+        },
+        "id": "4d66e8c6-97db-4001-85ec-52f1d2dde768",
+        "name": "Extraer datos del lead",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -440,
+          96
+        ]
+      },
+      {
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/contacts/{{ $json.contactId }}",
+          "sendHeaders": false,
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify($json.patch) }}",
+          "options": {},
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth"
+        },
+        "id": "d5e0db70-09a8-450f-a256-7210d345dfd6",
+        "name": "Actualizar contacto en Chatwoot",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -464,
+          96
+        ],
+        "onError": "continueErrorOutput",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "8RROUEbNisEU6Se9",
+            "name": "Chatwoot FINDES admin (martin)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -690,
+          96
+        ],
+        "id": "4c63986d-1f62-46c3-8f35-979c224df638",
+        "name": "Traer historial",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "8RROUEbNisEU6Se9",
+            "name": "Chatwoot FINDES admin (martin)"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter": {
+        "main": [
+          [
+            {
+              "node": "Traer historial",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extraer datos del lead": {
+        "main": [
+          [
+            {
+              "node": "Actualizar contacto en Chatwoot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Actualizar contacto en Chatwoot": {
+        "main": [
+          []
+        ]
+      },
+      "Traer historial": {
+        "main": [
+          [
+            {
+              "node": "Extraer datos del lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": [],
+    "authors": "N8N romero urrutia",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-07-11T07:56:10.407Z",
+        "id": 74,
+        "workflowId": "cyATBuZhuVf222O4",
+        "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+        "event": "activated",
+        "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
+      },
+      {
+        "createdAt": "2026-07-11T07:56:10.392Z",
+        "id": 73,
+        "workflowId": "cyATBuZhuVf222O4",
+        "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+        "event": "deactivated",
+        "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
+      }
+    ]
+  }
+}
