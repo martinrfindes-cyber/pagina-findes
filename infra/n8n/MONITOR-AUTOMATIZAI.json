@@ -1,0 +1,194 @@
+{
+  "name": "MONITOR-AUTOMATIZAI (uptime)",
+  "nodes": [
+    {
+      "id": "01806d01-d89a-4bfa-b8c3-f9b5400bb57b",
+      "name": "Cada 3 horas",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "644aaec2-5cea-4814-b4a4-9c4f1ae9562f",
+      "name": "Revisar web",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        140,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://automatizai.com.mx",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "id": "13c2e99b-814c-4b4a-82fe-b6bdd4335f97",
+      "name": "Revisar Chatwoot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        380,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://findes-chatwoot.7yidoh.easypanel.host",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "id": "dddb047e-c692-42ef-9441-f1f46a4a4e2a",
+      "name": "Revisar bot (webhook)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        620,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n-n8n.7yidoh.easypanel.host/webhook/986c1b30-4a2e-4ae1-80b3-bec54afd104c",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          },
+          "timeout": 15000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"message_type\":\"monitor_ping\",\"source\":\"uptime-monitor\"}"
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "id": "e71331b9-fc94-4278-aa04-0e80f7957c81",
+      "name": "Evaluar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\nconst ok = (r) => r && typeof r.statusCode === 'number' && r.statusCode >= 200 && r.statusCode < 400;\nfunction get(name){ try { return $(name).first().json; } catch(e){ return null; } }\n\nconst web = get('Revisar web');\nconst chatwoot = get('Revisar Chatwoot');\nconst bot = get('Revisar bot (webhook)');\n\nconst fails = [];\nif (!ok(web)) {\n  fails.push('- La web *automatizai.com.mx* no responde (codigo ' + (web && web.statusCode ? web.statusCode : 'sin respuesta') + ').');\n}\nif (!ok(chatwoot)) {\n  fails.push('- *Chatwoot* no responde (codigo ' + (chatwoot && chatwoot.statusCode ? chatwoot.statusCode : 'sin respuesta') + ').');\n}\nif (!ok(bot)) {\n  const s = (bot && bot.statusCode ? bot.statusCode : 'sin respuesta');\n  fails.push('- El *chatbot* (workflow AUTOMATIZAI-CHATWOOT) parece caido o sin publicar (webhook devolvio ' + s + ').');\n}\n\nif (fails.length === 0) {\n  return [];\n}\nconst text = '🚨 *Alerta AutomatizAI*\\n\\nLa revision automatica detecto problemas:\\n\\n' + fails.join('\\n') + '\\n\\n_Monitor cada 3 h. Revisa Easypanel / n8n._';\nreturn [{ json: { text: text, fails: fails } }];\n"
+      }
+    },
+    {
+      "id": "bca40f2c-c0a1-4d49-9846-ce481e9f7ca5",
+      "name": "Enviar alerta Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1140,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: 938034114, text: $json.text, parse_mode: 'Markdown' }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Cada 3 horas": {
+      "main": [
+        [
+          {
+            "node": "Revisar web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar web": {
+      "main": [
+        [
+          {
+            "node": "Revisar Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "Revisar bot (webhook)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revisar bot (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Evaluar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluar": {
+      "main": [
+        [
+          {
+            "node": "Enviar alerta Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
