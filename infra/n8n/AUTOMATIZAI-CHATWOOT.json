@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-11T07:56:10.339Z",
+  "updatedAt": "2026-07-12T09:19:40.199Z",
   "createdAt": "2026-07-11T06:37:34.712Z",
   "id": "cyATBuZhuVf222O4",
   "name": "AUTOMATIZAI-CHATWOOT",
@@ -224,6 +224,56 @@
           "name": "Chatwoot FINDES admin (martin)"
         }
       }
+    },
+    {
+      "parameters": {
+        "amount": 8,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -620,
+        -420
+      ],
+      "id": "db000001-0000-4000-8000-000000000001",
+      "name": "Esperar (juntar)",
+      "webhookId": "db000001-aaaa-4bbb-8ccc-000000000001"
+    },
+    {
+      "parameters": {
+        "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -470,
+        -420
+      ],
+      "id": "db000002-0000-4000-8000-000000000002",
+      "name": "Historial (juntar)",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Debounce: corre despues del Wait. Relee la conversacion y decide si esta\n// ejecucion es la del ULTIMO mensaje entrante. Si el visitante mando mas\n// mensajes mientras esperabamos, esta ejecucion se detiene (return []) y la\n// del ultimo mensaje respondera con todo junto.\nconst NL = String.fromCharCode(10);\nconst hist = ($json.payload || [])\n  .filter(m => m && typeof m.content === 'string' && m.content.trim() !== '')\n  .map(m => ({ id: Number(m.id) || 0, t: m.message_type, c: m.content, at: m.created_at }))\n  .sort((a, b) => (a.at || 0) - (b.at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst myId = Number(body.id) || 0;\n\nconst entrantes = hist.filter(m => m.t === 0);\nif (entrantes.length === 0) return [];\n\n// Si hay un mensaje entrante mas nuevo que el mio, me detengo.\nconst maxId = Math.max.apply(null, entrantes.map(m => m.id));\nif (myId && maxId > myId) return [];\n\n// Juntar todos los mensajes entrantes desde la ultima respuesta del bot.\nlet inicio = 0;\nfor (let i = hist.length - 1; i >= 0; i--) {\n  if (hist[i].t === 1) { inicio = i + 1; break; }\n}\nconst textos = hist.slice(inicio).filter(m => m.t === 0).map(m => m.c.trim());\nconst combinado = textos.join(NL).trim() || (body.content || '');\n\nreturn [{ json: { body: Object.assign({}, body, { content: combinado }) } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -330,
+        -420
+      ],
+      "id": "db000003-0000-4000-8000-000000000003",
+      "name": "Junta mensajes"
     }
   ],
   "connections": {
@@ -269,7 +319,7 @@
             "index": 0
           },
           {
-            "node": "AI Agent",
+            "node": "Esperar (juntar)",
             "type": "main",
             "index": 0
           }
@@ -313,6 +363,39 @@
           }
         ]
       ]
+    },
+    "Esperar (juntar)": {
+      "main": [
+        [
+          {
+            "node": "Historial (juntar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historial (juntar)": {
+      "main": [
+        [
+          {
+            "node": "Junta mensajes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Junta mensajes": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -322,9 +405,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": null,
-  "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
-  "activeVersionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
-  "versionCounter": 3,
+  "versionId": "15241efb-f535-42f7-9222-606506bfcf56",
+  "activeVersionId": "15241efb-f535-42f7-9222-606506bfcf56",
+  "versionCounter": 5,
   "triggerCount": 1,
   "sourceWorkflowId": null,
   "shared": [
@@ -349,9 +432,9 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-07-11T07:56:10.343Z",
-    "createdAt": "2026-07-11T07:56:10.343Z",
-    "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+    "updatedAt": "2026-07-12T09:19:40.202Z",
+    "createdAt": "2026-07-12T09:19:40.202Z",
+    "versionId": "15241efb-f535-42f7-9222-606506bfcf56",
     "workflowId": "cyATBuZhuVf222O4",
     "nodes": [
       {
@@ -571,6 +654,56 @@
             "name": "Chatwoot FINDES admin (martin)"
           }
         }
+      },
+      {
+        "parameters": {
+          "amount": 8,
+          "unit": "seconds"
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -620,
+          -420
+        ],
+        "id": "db000001-0000-4000-8000-000000000001",
+        "name": "Esperar (juntar)",
+        "webhookId": "db000001-aaaa-4bbb-8ccc-000000000001"
+      },
+      {
+        "parameters": {
+          "url": "=https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/{{ $('Webhook').item.json.body.conversation.id }}/messages",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          -470,
+          -420
+        ],
+        "id": "db000002-0000-4000-8000-000000000002",
+        "name": "Historial (juntar)",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "8RROUEbNisEU6Se9",
+            "name": "Chatwoot FINDES admin (martin)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Debounce: corre despues del Wait. Relee la conversacion y decide si esta\n// ejecucion es la del ULTIMO mensaje entrante. Si el visitante mando mas\n// mensajes mientras esperabamos, esta ejecucion se detiene (return []) y la\n// del ultimo mensaje respondera con todo junto.\nconst NL = String.fromCharCode(10);\nconst hist = ($json.payload || [])\n  .filter(m => m && typeof m.content === 'string' && m.content.trim() !== '')\n  .map(m => ({ id: Number(m.id) || 0, t: m.message_type, c: m.content, at: m.created_at }))\n  .sort((a, b) => (a.at || 0) - (b.at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst myId = Number(body.id) || 0;\n\nconst entrantes = hist.filter(m => m.t === 0);\nif (entrantes.length === 0) return [];\n\n// Si hay un mensaje entrante mas nuevo que el mio, me detengo.\nconst maxId = Math.max.apply(null, entrantes.map(m => m.id));\nif (myId && maxId > myId) return [];\n\n// Juntar todos los mensajes entrantes desde la ultima respuesta del bot.\nlet inicio = 0;\nfor (let i = hist.length - 1; i >= 0; i--) {\n  if (hist[i].t === 1) { inicio = i + 1; break; }\n}\nconst textos = hist.slice(inicio).filter(m => m.t === 0).map(m => m.c.trim());\nconst combinado = textos.join(NL).trim() || (body.content || '');\n\nreturn [{ json: { body: Object.assign({}, body, { content: combinado }) } }];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -330,
+          -420
+        ],
+        "id": "db000003-0000-4000-8000-000000000003",
+        "name": "Junta mensajes"
       }
     ],
     "connections": {
@@ -616,7 +749,7 @@
               "index": 0
             },
             {
-              "node": "AI Agent",
+              "node": "Esperar (juntar)",
               "type": "main",
               "index": 0
             }
@@ -660,6 +793,39 @@
             }
           ]
         ]
+      },
+      "Esperar (juntar)": {
+        "main": [
+          [
+            {
+              "node": "Historial (juntar)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Historial (juntar)": {
+        "main": [
+          [
+            {
+              "node": "Junta mensajes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Junta mensajes": {
+        "main": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
@@ -669,18 +835,34 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-07-11T07:56:10.407Z",
-        "id": 74,
+        "createdAt": "2026-07-12T09:19:40.303Z",
+        "id": 99,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+        "versionId": "15241efb-f535-42f7-9222-606506bfcf56",
         "event": "activated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-11T07:56:10.392Z",
-        "id": 73,
+        "createdAt": "2026-07-12T09:19:40.774Z",
+        "id": 101,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "d5e21546-13b1-4362-96fc-9d348bbbd4b6",
+        "versionId": "15241efb-f535-42f7-9222-606506bfcf56",
+        "event": "activated",
+        "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
+      },
+      {
+        "createdAt": "2026-07-12T09:19:40.273Z",
+        "id": 98,
+        "workflowId": "cyATBuZhuVf222O4",
+        "versionId": "15241efb-f535-42f7-9222-606506bfcf56",
+        "event": "deactivated",
+        "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
+      },
+      {
+        "createdAt": "2026-07-12T09:19:40.754Z",
+        "id": 100,
+        "workflowId": "cyATBuZhuVf222O4",
+        "versionId": "15241efb-f535-42f7-9222-606506bfcf56",
         "event": "deactivated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       }
