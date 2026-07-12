@@ -8,7 +8,7 @@ el tool de precios.
 - **Archivo:** [`AUTOMATIZAI-CHATWOOT.json`](./AUTOMATIZAI-CHATWOOT.json)
 - **Instancia n8n:** `https://n8n-n8n.7yidoh.easypanel.host` (Easypanel, la misma que FINDES)
 - **ID del workflow:** `cyATBuZhuVf222O4`
-- **Estado:** activo · 12 nodos · webhook path `986c1b30-4a2e-4ae1-80b3-bec54afd104c`
+- **Estado:** activo · 14 nodos · webhook path `986c1b30-4a2e-4ae1-80b3-bec54afd104c`
 
 ## Qué hace
 
@@ -18,6 +18,28 @@ Cuando entra un mensaje desde el chat de la web (webhook de Chatwoot, inbox 2):
    AutomatizAI y pide nombre / empresa / qué desea automatizar.
 2. 📇 Extrae los datos del lead y los escribe en el **contacto de Chatwoot**
    (`Actualizar contacto en Chatwoot`).
+3. 🔔 Si es la **primera vez** que se capta un contacto (correo o teléfono),
+   avisa por **Telegram** al bot de alertas de AutomatizAI (ver abajo).
+
+## Aviso de lead por Telegram (jul 2026)
+
+Al final de la rama de captación: `Actualizar contacto en Chatwoot →
+¿Avisar lead? (IF) → Aviso lead Telegram`.
+
+- El nodo `Extraer datos del lead` calcula un flag `avisar`: **true solo la
+  primera vez** que el contacto pasa de *sin correo/teléfono* a *con contacto*
+  (evita spamear si luego da un segundo dato). También arma `avisoText`.
+- `¿Avisar lead?` (IF): pasa a Telegram solo si `avisar === true`.
+- `Aviso lead Telegram` (HTTP a `api.telegram.org`): manda
+  `🟢 Lead nuevo — AutomatizAI` con nombre / correo / teléfono al chat de
+  alertas **`@Alertas_AutomatizaiBot`** (chat_id `938034114`, el mismo del
+  [`MONITOR-AUTOMATIZAI`](./MONITOR-AUTOMATIZAI-README.md)). `onError` en
+  `continueRegularOutput` (un fallo de Telegram no rompe el flujo).
+
+> ⚠️ El token del bot va **embebido en la URL** del nodo (patrón del monitor) y
+> en este backup está **redactado** como `<TELEGRAM_BOT_TOKEN>`. Al restaurar hay
+> que pegar el token real de `@Alertas_AutomatizaiBot` en la URL del nodo
+> `Aviso lead Telegram`.
 
 ## Debounce — agrupar mensajes en partes (jul 2026)
 
