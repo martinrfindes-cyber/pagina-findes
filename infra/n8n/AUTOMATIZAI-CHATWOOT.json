@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-12T10:14:35.259Z",
+  "updatedAt": "2026-07-12T10:20:54.630Z",
   "createdAt": "2026-07-11T06:37:34.712Z",
   "id": "cyATBuZhuVf222O4",
   "name": "AUTOMATIZAI-CHATWOOT",
@@ -107,6 +107,26 @@
               "operator": {
                 "type": "boolean",
                 "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ff000001-0000-4000-8000-000000000001",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "message_created",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "ff000002-0000-4000-8000-000000000002",
+              "leftValue": "={{ $json.body.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
                 "singleValue": true
               }
             }
@@ -475,9 +495,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": null,
-  "versionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
-  "activeVersionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
-  "versionCounter": 7,
+  "versionId": "9d24224c-e870-480d-8f41-a996ab849178",
+  "activeVersionId": "9d24224c-e870-480d-8f41-a996ab849178",
+  "versionCounter": 8,
   "triggerCount": 1,
   "sourceWorkflowId": null,
   "shared": [
@@ -502,9 +522,9 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-07-12T10:14:35.261Z",
-    "createdAt": "2026-07-12T10:14:35.261Z",
-    "versionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
+    "updatedAt": "2026-07-12T10:20:54.633Z",
+    "createdAt": "2026-07-12T10:20:54.633Z",
+    "versionId": "9d24224c-e870-480d-8f41-a996ab849178",
     "workflowId": "cyATBuZhuVf222O4",
     "nodes": [
       {
@@ -607,6 +627,26 @@
                 "operator": {
                   "type": "boolean",
                   "operation": "false",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "ff000001-0000-4000-8000-000000000001",
+                "leftValue": "={{ $json.body.event }}",
+                "rightValue": "message_created",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              },
+              {
+                "id": "ff000002-0000-4000-8000-000000000002",
+                "leftValue": "={{ $json.body.content }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
                   "singleValue": true
                 }
               }
@@ -975,34 +1015,34 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-07-12T10:14:35.335Z",
-        "id": 107,
+        "createdAt": "2026-07-12T10:20:54.695Z",
+        "id": 111,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
+        "versionId": "9d24224c-e870-480d-8f41-a996ab849178",
         "event": "activated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-12T10:14:35.747Z",
-        "id": 109,
+        "createdAt": "2026-07-12T10:20:55.097Z",
+        "id": 113,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
+        "versionId": "9d24224c-e870-480d-8f41-a996ab849178",
         "event": "activated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-12T10:14:35.319Z",
-        "id": 106,
+        "createdAt": "2026-07-12T10:20:54.680Z",
+        "id": 110,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
+        "versionId": "9d24224c-e870-480d-8f41-a996ab849178",
         "event": "deactivated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-12T10:14:35.718Z",
-        "id": 108,
+        "createdAt": "2026-07-12T10:20:55.078Z",
+        "id": 112,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "e09657f6-976f-46c9-80cd-f350741dedf7",
+        "versionId": "9d24224c-e870-480d-8f41-a996ab849178",
         "event": "deactivated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       }

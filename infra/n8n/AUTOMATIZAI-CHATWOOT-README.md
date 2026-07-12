@@ -75,6 +75,21 @@ El **formulario web** entra por otro camino (inbox 3 tipo API, vía la ruta
 `app/api/lead/route.ts` del sitio), no por este workflow. Ambos leads se ven
 juntos en el dashboard `findes-automatizai-crm`.
 
+## Filtro endurecido (jul 2026)
+
+El nodo `Filter` (AND de 4 condiciones) descarta el ruido de eventos de Chatwoot
+y solo deja pasar mensajes entrantes reales con texto:
+
+1. `body.message_type` = `incoming`
+2. `body.conversation.custom_attributes.ia_pausada` **no** es `true`
+3. `body.event` = `message_created` (ignora `webwidget_triggered`,
+   `conversation_updated`, `conversation_status_changed`, `message_updated`…)
+4. `body.content` **no vacío** (ignora adjuntos sin texto)
+
+Verificado en vivo (12/07/2026): de ~8 eventos que dispara Chatwoot por una sola
+interacción, solo el `message_created`/`incoming` con texto pasó y el bot
+respondió; todo lo demás quedó bloqueado.
+
 ## Credenciales (NO van en el JSON)
 
 > ⚠️ El JSON **no** incluye los tokens: las credenciales viven encriptadas en
