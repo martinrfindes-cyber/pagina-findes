@@ -27,10 +27,10 @@ la rama del `AI Agent` pasa por un patrón *Wait + debounce*:
 
 ```
 Filter ─┬─► Traer historial → Extraer lead → Actualizar contacto   (rama lead, sin cambios)
-        └─► Esperar (juntar) 8s → Historial (juntar) → Junta mensajes → AI Agent → responder
+        └─► Esperar (juntar) 12s → Historial (juntar) → Junta mensajes → AI Agent → responder
 ```
 
-- **`Esperar (juntar)`** (nodo `Wait`, 8 s): al llegar un mensaje no responde de
+- **`Esperar (juntar)`** (nodo `Wait`, 12 s): al llegar un mensaje no responde de
   inmediato.
 - **`Historial (juntar)`**: relee la conversación en Chatwoot tras la espera.
 - **`Junta mensajes`** (nodo `Code`): compara por `id` de mensaje. Si mientras
@@ -40,8 +40,14 @@ Filter ─┬─► Traer historial → Extraer lead → Actualizar contacto   (
   un solo turno para el agente. Preserva `body` intacto (la memoria usa
   `conversation.id`), solo reescribe `body.content`.
 
-Los 8 s se ajustan en el nodo `Esperar (juntar)` (`amount`). La rama de captación
+Los 12 s se ajustan en el nodo `Esperar (juntar)` (`amount`). La rama de captación
 de lead **no** pasa por el debounce (es idempotente: solo rellena campos vacíos).
+
+Verificado en vivo (12/07/2026): 3 mensajes reales desde el widget → la ejecución
+del mensaje intermedio se detuvo y la del último respondió juntando los globos que
+cayeron dentro de la ventana. El prompt del `AI Agent` también se afinó (respuestas
+más breves, sección "Mensajes en partes", no repreguntar datos ya dados, cierre con
+micro-siguiente-paso).
 
 El **formulario web** entra por otro camino (inbox 3 tipo API, vía la ruta
 `app/api/lead/route.ts` del sitio), no por este workflow. Ambos leads se ven
