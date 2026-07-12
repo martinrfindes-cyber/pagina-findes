@@ -8,7 +8,7 @@ el tool de precios.
 - **Archivo:** [`AUTOMATIZAI-CHATWOOT.json`](./AUTOMATIZAI-CHATWOOT.json)
 - **Instancia n8n:** `https://n8n-n8n.7yidoh.easypanel.host` (Easypanel, la misma que FINDES)
 - **ID del workflow:** `cyATBuZhuVf222O4`
-- **Estado:** activo · 14 nodos · webhook path `986c1b30-4a2e-4ae1-80b3-bec54afd104c`
+- **Estado:** activo · 17 nodos · webhook path `986c1b30-4a2e-4ae1-80b3-bec54afd104c`
 
 ## Qué hace
 
@@ -20,6 +20,33 @@ Cuando entra un mensaje desde el chat de la web (webhook de Chatwoot, inbox 2):
    (`Actualizar contacto en Chatwoot`).
 3. 🔔 Si es la **primera vez** que se capta un contacto (correo o teléfono),
    avisa por **Telegram** al bot de alertas de AutomatizAI (ver abajo).
+
+## Campos estructurados: empresa + necesidad (jul 2026)
+
+En la rama de captación, cuando el bot capta un contacto (hay `patch` de
+nombre/tel/correo) se extraen dos campos con IA y se guardan como
+**custom attributes** del contacto de Chatwoot:
+
+```
+Extraer datos del lead → Extraer necesidad (IA) → Armar update → Actualizar contacto
+```
+
+- `Extraer datos del lead` arma además un `transcript` (mensajes del visitante).
+- `Extraer necesidad (IA)` (**Information Extractor**, LLM) saca `empresa` y
+  `necesidad` (qué necesita / quiere resolver). Modelo: **`gpt-4o-mini`** con un
+  nodo `OpenAI (extractor)` dedicado. ⚠️ **Gotcha:** con `gpt-5-mini` el modelo
+  devuelve el JSON envuelto en ```` ```json ```` y el parser del nodo lo dejaba
+  vacío; `gpt-4o-mini` (function-calling limpio) lo resuelve. `onError`
+  tolerante: si fallara, el bot y la captación básica siguen.
+- `Armar update` (Code) mete `empresa`/`necesidad` en `custom_attributes`
+  haciendo **merge** (no pisa lo existente) y solo dispara PUT si algo cambió.
+- La extracción se **gatea a leads reales** (solo corre cuando ya hay un dato de
+  contacto), para no gastar tokens en cada "hola".
+
+> Los `custom_attributes` se escriben vía API aunque no estén definidos en
+> *Chatwoot → Ajustes → Atributos personalizados*; el **dashboard** los lee
+> directo. Para verlos como campo en la **UI de Chatwoot** hay que definirlos ahí
+> (`empresa`, `necesidad`).
 
 ## Aviso de lead por Telegram (jul 2026)
 

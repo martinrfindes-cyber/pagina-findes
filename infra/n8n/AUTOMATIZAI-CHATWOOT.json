@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-12T10:55:12.886Z",
+  "updatedAt": "2026-07-12T11:11:23.252Z",
   "createdAt": "2026-07-11T06:37:34.712Z",
   "id": "cyATBuZhuVf222O4",
   "name": "AUTOMATIZAI-CHATWOOT",
@@ -184,7 +184,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\n// Aviso de lead: solo la PRIMERA vez que captamos un contacto (correo o telefono).\nconst teniaContacto = !!(sender.phone_number || sender.email);\nconst captamosContacto = !!(patch.phone_number || patch.email);\nconst avisar = !teniaContacto && captamosContacto;\nconst nombreLead = patch.name || (esNombreAuto(sender.name) ? null : sender.name) || null;\nconst _NL = String.fromCharCode(10);\nconst avisoText = '🟢 *Lead nuevo — AutomatizAI*' + _NL + _NL +\n  '👤 ' + (nombreLead || 'Sin nombre') + _NL +\n  '📧 ' + (patch.email || sender.email || '—') + _NL +\n  '📱 ' + (patch.phone_number || sender.phone_number || '—');\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch, avisar, avisoText, lead: { nombre: nombreLead, email: patch.email || sender.email || null, telefono: patch.phone_number || sender.phone_number || null } } }];"
+        "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\n// Aviso de lead: solo la PRIMERA vez que captamos un contacto (correo o telefono).\nconst teniaContacto = !!(sender.phone_number || sender.email);\nconst captamosContacto = !!(patch.phone_number || patch.email);\nconst avisar = !teniaContacto && captamosContacto;\nconst nombreLead = patch.name || (esNombreAuto(sender.name) ? null : sender.name) || null;\nconst _NL = String.fromCharCode(10);\nconst avisoText = '🟢 *Lead nuevo — AutomatizAI*' + _NL + _NL +\n  '👤 ' + (nombreLead || 'Sin nombre') + _NL +\n  '📧 ' + (patch.email || sender.email || '—') + _NL +\n  '📱 ' + (patch.phone_number || sender.phone_number || '—');\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch, avisar, avisoText, transcript: (typeof visitante !== 'undefined' ? visitante.join(String.fromCharCode(10)) : ''), custom_prev: sender.custom_attributes || {}, lead: { nombre: nombreLead, email: patch.email || sender.email || null, telefono: patch.phone_number || sender.phone_number || null } } }];"
       },
       "id": "4d66e8c6-97db-4001-85ec-52f1d2dde768",
       "name": "Extraer datos del lead",
@@ -202,7 +202,7 @@
         "sendHeaders": false,
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.patch) }}",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
         "options": {},
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth"
@@ -346,6 +346,76 @@
       "id": "ee000003-0000-4000-8000-000000000003",
       "name": "Aviso lead Telegram",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -360,
+        400
+      ],
+      "id": "cc000011-0000-4000-8000-000000000011",
+      "name": "OpenAI (extractor)",
+      "credentials": {
+        "openAiApi": {
+          "id": "iHv1bkAxAEnjRbsX",
+          "name": "OpenAI AutomatizAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.transcript }}",
+        "schemaType": "fromAttributes",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "empresa",
+              "type": "string",
+              "description": "Nombre de la empresa o negocio del visitante si lo menciona. Vacio si no lo dice.",
+              "required": false
+            },
+            {
+              "name": "necesidad",
+              "type": "string",
+              "description": "Que necesita o quiere resolver el visitante para su negocio, en una frase corta (ej. 'atender clientes 24/7', 'agendar citas', 'chatbot para su web'). Vacio si no se sabe.",
+              "required": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        220
+      ],
+      "id": "cc000010-0000-4000-8000-000000000010",
+      "name": "Extraer necesidad (IA)",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combina el patch (nombre/tel/correo) con empresa/necesidad (del extractor)\n// en custom_attributes, sin pisar lo que ya exista. Solo PUT si algo cambia.\nconst base = $('Extraer datos del lead').item.json;\nconst ext = ($json && ($json.output || $json)) || {};\nconst norm = v => (typeof v === 'string' ? v.trim() : '');\nconst empresa = norm(ext.empresa);\nconst necesidad = norm(ext.necesidad);\nconst prev = base.custom_prev || {};\nconst ca = Object.assign({}, prev);\nif (empresa && !prev.empresa) ca.empresa = empresa;\nif (necesidad && necesidad !== prev.necesidad) ca.necesidad = necesidad;\nconst body = Object.assign({}, base.patch || {});\nconst cambioCA = JSON.stringify(ca) !== JSON.stringify(prev);\nif (cambioCA) body.custom_attributes = ca;\nif (!base.contactId || Object.keys(body).length === 0) return [];\nreturn [{ json: { contactId: base.contactId, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        220
+      ],
+      "id": "cc000012-0000-4000-8000-000000000012",
+      "name": "Armar update"
     }
   ],
   "connections": {
@@ -413,7 +483,7 @@
       "main": [
         [
           {
-            "node": "Actualizar contacto en Chatwoot",
+            "node": "Extraer necesidad (IA)",
             "type": "main",
             "index": 0
           }
@@ -486,6 +556,39 @@
         ],
         []
       ]
+    },
+    "Extraer necesidad (IA)": {
+      "main": [
+        [
+          {
+            "node": "Armar update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar update": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contacto en Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI (extractor)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extraer necesidad (IA)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -495,9 +598,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": null,
-  "versionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
-  "activeVersionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
-  "versionCounter": 9,
+  "versionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
+  "activeVersionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
+  "versionCounter": 11,
   "triggerCount": 1,
   "sourceWorkflowId": null,
   "shared": [
@@ -522,9 +625,9 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-07-12T10:55:12.889Z",
-    "createdAt": "2026-07-12T10:55:12.889Z",
-    "versionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
+    "updatedAt": "2026-07-12T11:11:23.255Z",
+    "createdAt": "2026-07-12T11:11:23.255Z",
+    "versionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
     "workflowId": "cyATBuZhuVf222O4",
     "nodes": [
       {
@@ -704,7 +807,7 @@
       },
       {
         "parameters": {
-          "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\n// Aviso de lead: solo la PRIMERA vez que captamos un contacto (correo o telefono).\nconst teniaContacto = !!(sender.phone_number || sender.email);\nconst captamosContacto = !!(patch.phone_number || patch.email);\nconst avisar = !teniaContacto && captamosContacto;\nconst nombreLead = patch.name || (esNombreAuto(sender.name) ? null : sender.name) || null;\nconst _NL = String.fromCharCode(10);\nconst avisoText = '🟢 *Lead nuevo — AutomatizAI*' + _NL + _NL +\n  '👤 ' + (nombreLead || 'Sin nombre') + _NL +\n  '📧 ' + (patch.email || sender.email || '—') + _NL +\n  '📱 ' + (patch.phone_number || sender.phone_number || '—');\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch, avisar, avisoText, lead: { nombre: nombreLead, email: patch.email || sender.email || null, telefono: patch.phone_number || sender.phone_number || null } } }];"
+          "jsCode": "// Trae el historial completo (nodo \"Traer historial\") + el mensaje actual (Webhook).\n// Extrae nombre / telefono / correo y arma el patch para actualizar el contacto\n// en Chatwoot, sin pisar datos que ya esten buenos.\nconst historial = ($input.first().json.payload || [])\n  .map(m => ({ message_type: m.message_type, content: m.content, created_at: m.created_at }))\n  .sort((a, b) => (a.created_at || 0) - (b.created_at || 0));\nconst body = $('Webhook').first().json.body || {};\nconst sender = body.sender || {};\n\nconst contactId =\n  sender.id ??\n  body?.conversation?.meta?.sender?.id ??\n  body?.conversation?.contact_inbox?.contact_id;\n\nconst visitante = historial.filter(m => m.message_type === 0 && m.content).map(m => m.content);\n\nfunction esNombreAuto(name) {\n  if (!name) return true;\n  const n = String(name).trim();\n  return /^[a-z]+-[a-z]+-\\d+$/.test(n) || /^visitante/i.test(n);\n}\nconst capitalizar = (n) =>\n  n.toLowerCase().replace(/(^|\\s)([a-záéíóúñ])/g, (_, s, c) => s + c.toUpperCase());\n\n// --- Nombre: 1) con palabra gatillo (\"soy X\", \"me llamo X\") ---\nconst NAME_LABEL_RE = /\\b(?:me llamo|mi nombre es|mi nombre|nombre:?)\\s+([a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,})?)/i;\nconst NAME_SOY_RE = /\\b[Ss]oy\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,}(?:\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{1,})?)/;\n// --- 2) por contexto: el bot pidio el nombre y el visitante respondio ---\nconst PIDE_NOMBRE_RE = /\\b(tu nombre|c[oó]mo te llamas|cu[aá]l es tu nombre)\\b/i;\nconst PARECE_NOMBRE_RE = /^[a-záéíóúñ]{2,}(?:\\s+[a-záéíóúñ]{2,}){0,2}$/i;\nconst NO_ES_NOMBRE = new Set([\"si\",\"sí\",\"no\",\"ok\",\"okay\",\"hola\",\"gracias\",\"ambas\",\"ambos\",\"claro\",\"dale\",\"listo\",\"bien\",\"perfecto\",\"ninguno\",\"ninguna\",\"nada\",\"online\",\"presencial\"]);\n\nlet nombre = null;\nfor (const t of visitante) {\n  const m = t.match(NAME_LABEL_RE) || t.match(NAME_SOY_RE);\n  if (m) { nombre = capitalizar(m[1].trim()); break; }\n}\nif (!nombre) {\n  for (let i = 0; i < historial.length - 1 && !nombre; i++) {\n    const m = historial[i];\n    if (m.message_type !== 1 || !m.content || !PIDE_NOMBRE_RE.test(m.content)) continue;\n    for (let j = i + 1; j < historial.length; j++) {\n      const r = historial[j];\n      if (r.message_type !== 0 || !r.content) continue;\n      const c = r.content.trim().replace(/[.,!¡¿?]+$/g, '').trim();\n      if (PARECE_NOMBRE_RE.test(c) && !NO_ES_NOMBRE.has(c.toLowerCase())) nombre = capitalizar(c);\n      break;\n    }\n  }\n}\n\n// --- Telefono MX (10 digitos -> +52...) ---\nconst PHONE_RE = /(\\+?52[\\s-]?)?(\\(?\\d{2,3}\\)?[\\s-]?)?\\d{3,4}[\\s-]?\\d{4}/g;\nlet telefono = null;\nfor (const t of visitante) {\n  for (const c of (t.match(PHONE_RE) || [])) {\n    let dgt = c.replace(/\\D/g, '');\n    if (dgt.length === 13 && dgt.startsWith('521')) dgt = dgt.slice(3);\n    else if (dgt.length === 12 && dgt.startsWith('52')) dgt = dgt.slice(2);\n    if (dgt.length === 10) { telefono = '+52' + dgt; break; }\n  }\n  if (telefono) break;\n}\n\n// --- Correo ---\nlet email = null;\nfor (const t of visitante) {\n  const m = t.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/);\n  if (m) { email = m[0]; break; }\n}\n\n// Solo rellenamos lo que el contacto aun no tenga (no pisamos datos buenos).\nconst patch = {};\nif (nombre && esNombreAuto(sender.name)) patch.name = nombre;\nif (telefono && !sender.phone_number) patch.phone_number = telefono;\nif (email && !sender.email) patch.email = email;\n\n// Aviso de lead: solo la PRIMERA vez que captamos un contacto (correo o telefono).\nconst teniaContacto = !!(sender.phone_number || sender.email);\nconst captamosContacto = !!(patch.phone_number || patch.email);\nconst avisar = !teniaContacto && captamosContacto;\nconst nombreLead = patch.name || (esNombreAuto(sender.name) ? null : sender.name) || null;\nconst _NL = String.fromCharCode(10);\nconst avisoText = '🟢 *Lead nuevo — AutomatizAI*' + _NL + _NL +\n  '👤 ' + (nombreLead || 'Sin nombre') + _NL +\n  '📧 ' + (patch.email || sender.email || '—') + _NL +\n  '📱 ' + (patch.phone_number || sender.phone_number || '—');\n\nif (!contactId || Object.keys(patch).length === 0) return [];\nreturn [{ json: { contactId, patch, avisar, avisoText, transcript: (typeof visitante !== 'undefined' ? visitante.join(String.fromCharCode(10)) : ''), custom_prev: sender.custom_attributes || {}, lead: { nombre: nombreLead, email: patch.email || sender.email || null, telefono: patch.phone_number || sender.phone_number || null } } }];"
         },
         "id": "4d66e8c6-97db-4001-85ec-52f1d2dde768",
         "name": "Extraer datos del lead",
@@ -722,7 +825,7 @@
           "sendHeaders": false,
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify($json.patch) }}",
+          "jsonBody": "={{ JSON.stringify($json.body) }}",
           "options": {},
           "authentication": "genericCredentialType",
           "genericAuthType": "httpHeaderAuth"
@@ -866,6 +969,76 @@
         "id": "ee000003-0000-4000-8000-000000000003",
         "name": "Aviso lead Telegram",
         "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          -360,
+          400
+        ],
+        "id": "cc000011-0000-4000-8000-000000000011",
+        "name": "OpenAI (extractor)",
+        "credentials": {
+          "openAiApi": {
+            "id": "iHv1bkAxAEnjRbsX",
+            "name": "OpenAI AutomatizAI"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "text": "={{ $json.transcript }}",
+          "schemaType": "fromAttributes",
+          "attributes": {
+            "attributes": [
+              {
+                "name": "empresa",
+                "type": "string",
+                "description": "Nombre de la empresa o negocio del visitante si lo menciona. Vacio si no lo dice.",
+                "required": false
+              },
+              {
+                "name": "necesidad",
+                "type": "string",
+                "description": "Que necesita o quiere resolver el visitante para su negocio, en una frase corta (ej. 'atender clientes 24/7', 'agendar citas', 'chatbot para su web'). Vacio si no se sabe.",
+                "required": false
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+        "typeVersion": 1,
+        "position": [
+          -300,
+          220
+        ],
+        "id": "cc000010-0000-4000-8000-000000000010",
+        "name": "Extraer necesidad (IA)",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Combina el patch (nombre/tel/correo) con empresa/necesidad (del extractor)\n// en custom_attributes, sin pisar lo que ya exista. Solo PUT si algo cambia.\nconst base = $('Extraer datos del lead').item.json;\nconst ext = ($json && ($json.output || $json)) || {};\nconst norm = v => (typeof v === 'string' ? v.trim() : '');\nconst empresa = norm(ext.empresa);\nconst necesidad = norm(ext.necesidad);\nconst prev = base.custom_prev || {};\nconst ca = Object.assign({}, prev);\nif (empresa && !prev.empresa) ca.empresa = empresa;\nif (necesidad && necesidad !== prev.necesidad) ca.necesidad = necesidad;\nconst body = Object.assign({}, base.patch || {});\nconst cambioCA = JSON.stringify(ca) !== JSON.stringify(prev);\nif (cambioCA) body.custom_attributes = ca;\nif (!base.contactId || Object.keys(body).length === 0) return [];\nreturn [{ json: { contactId: base.contactId, body } }];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -160,
+          220
+        ],
+        "id": "cc000012-0000-4000-8000-000000000012",
+        "name": "Armar update"
       }
     ],
     "connections": {
@@ -933,7 +1106,7 @@
         "main": [
           [
             {
-              "node": "Actualizar contacto en Chatwoot",
+              "node": "Extraer necesidad (IA)",
               "type": "main",
               "index": 0
             }
@@ -1006,6 +1179,39 @@
           ],
           []
         ]
+      },
+      "Extraer necesidad (IA)": {
+        "main": [
+          [
+            {
+              "node": "Armar update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Armar update": {
+        "main": [
+          [
+            {
+              "node": "Actualizar contacto en Chatwoot",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI (extractor)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Extraer necesidad (IA)",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
@@ -1015,34 +1221,34 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-07-12T10:55:12.958Z",
-        "id": 115,
+        "createdAt": "2026-07-12T11:11:23.325Z",
+        "id": 123,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
+        "versionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
         "event": "activated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-12T10:55:13.477Z",
-        "id": 117,
+        "createdAt": "2026-07-12T11:11:24.604Z",
+        "id": 125,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
+        "versionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
         "event": "activated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-12T10:55:12.939Z",
-        "id": 114,
+        "createdAt": "2026-07-12T11:11:23.310Z",
+        "id": 122,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
+        "versionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
         "event": "deactivated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       },
       {
-        "createdAt": "2026-07-12T10:55:13.401Z",
-        "id": 116,
+        "createdAt": "2026-07-12T11:11:24.575Z",
+        "id": 124,
         "workflowId": "cyATBuZhuVf222O4",
-        "versionId": "87dc92b6-1845-4e82-ad89-4c356c5d3725",
+        "versionId": "69d5d563-0e80-466c-8c4b-3c772953d9e4",
         "event": "deactivated",
         "userId": "39b1e2e1-9ed8-496c-bd3d-d2a63330753d"
       }
