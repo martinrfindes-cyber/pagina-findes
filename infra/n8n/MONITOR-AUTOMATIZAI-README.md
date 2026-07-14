@@ -35,8 +35,15 @@ nada). Web/Chatwoot siguen en modo solo-aviso (reiniciar Easypanel sería otro p
 - si **NO**: → `Evaluar (Code)` → `Enviar alerta Telegram`
 - si **SÍ**: → `Reactivar bot` → `Esperar 5s` → `Re-revisar bot` → `Evaluar` → `Enviar alerta Telegram`
 
-- Los nodos HTTP usan `neverError` + `onError: continueRegularOutput` + `timeout 15s`,
+- Los nodos HTTP usan `neverError` + `onError: continueRegularOutput` + `timeout 30s`,
   para que **una caída total** (DNS/timeout) también dispare alerta en vez de romper el workflow.
+- **Anti-falsa-alarma (2026-07-13):** los 4 chequeos HTTP (`Revisar web`,
+  `Revisar Chatwoot`, `Revisar bot (webhook)`, `Re-revisar bot`) tienen
+  **`retryOnFail` = 3 intentos con 5 s de espera** entre cada uno. Así un
+  **tirón de latencia momentáneo** (el server compartido de Easypanel ocupado un
+  segundo) se reintenta solo y **no dispara alerta**; solo avisa si el servicio
+  falla las 3 veces (caída real y sostenida). Antes era 1 solo intento con
+  timeout 15s, lo que generaba avisos falsos de "sin respuesta" en picos aislados.
 - **Evaluar (Code):** junta los estados (y si hubo intento de arreglo, su resultado).
   Si todo está sano devuelve `[]` (no manda nada). Si algo falla o se auto-arregló,
   arma el texto y lo pasa a Telegram.

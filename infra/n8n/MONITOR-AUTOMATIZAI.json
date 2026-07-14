@@ -40,11 +40,14 @@
               "neverError": true
             }
           },
-          "timeout": 15000
+          "timeout": 30000
         }
       },
       "onError": "continueRegularOutput",
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "b1ad9339-7a5e-41d4-8d8e-74df1bf806e9",
@@ -65,11 +68,14 @@
               "neverError": true
             }
           },
-          "timeout": 15000
+          "timeout": 30000
         }
       },
       "onError": "continueRegularOutput",
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "1eb2b768-e99f-4fc9-883c-9357b05e2969",
@@ -90,18 +96,21 @@
               "neverError": true
             }
           },
-          "timeout": 15000
+          "timeout": 30000
         },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "{\"message_type\":\"monitor_ping\",\"source\":\"uptime-monitor\"}"
       },
       "onError": "continueRegularOutput",
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "9190356c-22c8-4fb7-8e6e-be591b6ae963",
-      "name": "¿Bot caido?",
+      "name": "Â¿Bot caido?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
@@ -150,7 +159,7 @@
               "neverError": true
             }
           },
-          "timeout": 15000
+          "timeout": 30000
         },
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth"
@@ -198,14 +207,17 @@
               "neverError": true
             }
           },
-          "timeout": 15000
+          "timeout": 30000
         },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "{\"message_type\":\"monitor_ping\",\"source\":\"uptime-monitor-recheck\"}"
       },
       "onError": "continueRegularOutput",
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "eafdc1a9-f068-474d-9fc8-55f52d5fcd50",
@@ -217,7 +229,7 @@
         380
       ],
       "parameters": {
-        "jsCode": "\nconst ok = (r) => r && typeof r.statusCode === 'number' && r.statusCode >= 200 && r.statusCode < 400;\nfunction get(name){ try { return $(name).first().json; } catch(e){ return null; } }\n\nconst web = get('Revisar web');\nconst chatwoot = get('Revisar Chatwoot');\nlet botRecheck = null, fixAttempted = false;\ntry { botRecheck = $('Re-revisar bot').first().json; fixAttempted = true; } catch(e){}\n\nconst fails = [];\nconst fixes = [];\n\nif (!ok(web)) {\n  fails.push('- La web *automatizai.com.mx* no responde (codigo ' + (web && web.statusCode ? web.statusCode : 'sin respuesta') + ').');\n}\nif (!ok(chatwoot)) {\n  fails.push('- *Chatwoot* no responde (codigo ' + (chatwoot && chatwoot.statusCode ? chatwoot.statusCode : 'sin respuesta') + ').');\n}\nif (fixAttempted) {\n  if (ok(botRecheck)) {\n    fixes.push('- El *chatbot* (AUTOMATIZAI-CHATWOOT) estaba caido; lo reactive automaticamente y ya responde.');\n  } else {\n    const s = (botRecheck && botRecheck.statusCode ? botRecheck.statusCode : 'sin respuesta');\n    fails.push('- El *chatbot* SIGUE caido tras intentar reactivarlo (webhook ' + s + '). Revisalo tu.');\n  }\n}\n\nif (fails.length === 0 && fixes.length === 0) {\n  return [];\n}\n\nlet parts = [];\nif (fails.length) parts.push('Problemas:\\n' + fails.join('\\n'));\nif (fixes.length) parts.push('Auto-arreglos:\\n' + fixes.join('\\n'));\nconst header = fails.length ? '🚨 *Alerta AutomatizAI*' : '🔧 *Auto-arreglo AutomatizAI*';\nconst text = header + '\\n\\n' + parts.join('\\n\\n') + '\\n\\n_Monitor cada 3 h._';\nreturn [{ json: { text: text } }];\n"
+        "jsCode": "\nconst ok = (r) => r && typeof r.statusCode === 'number' && r.statusCode >= 200 && r.statusCode < 400;\nfunction get(name){ try { return $(name).first().json; } catch(e){ return null; } }\n\nconst web = get('Revisar web');\nconst chatwoot = get('Revisar Chatwoot');\nlet botRecheck = null, fixAttempted = false;\ntry { botRecheck = $('Re-revisar bot').first().json; fixAttempted = true; } catch(e){}\n\nconst fails = [];\nconst fixes = [];\n\nif (!ok(web)) {\n  fails.push('- La web *automatizai.com.mx* no responde (codigo ' + (web && web.statusCode ? web.statusCode : 'sin respuesta') + ').');\n}\nif (!ok(chatwoot)) {\n  fails.push('- *Chatwoot* no responde (codigo ' + (chatwoot && chatwoot.statusCode ? chatwoot.statusCode : 'sin respuesta') + ').');\n}\nif (fixAttempted) {\n  if (ok(botRecheck)) {\n    fixes.push('- El *chatbot* (AUTOMATIZAI-CHATWOOT) estaba caido; lo reactive automaticamente y ya responde.');\n  } else {\n    const s = (botRecheck && botRecheck.statusCode ? botRecheck.statusCode : 'sin respuesta');\n    fails.push('- El *chatbot* SIGUE caido tras intentar reactivarlo (webhook ' + s + '). Revisalo tu.');\n  }\n}\n\nif (fails.length === 0 && fixes.length === 0) {\n  return [];\n}\n\nlet parts = [];\nif (fails.length) parts.push('Problemas:\\n' + fails.join('\\n'));\nif (fixes.length) parts.push('Auto-arreglos:\\n' + fixes.join('\\n'));\nconst header = fails.length ? 'ðŸš¨ *Alerta AutomatizAI*' : 'ðŸ”§ *Auto-arreglo AutomatizAI*';\nconst text = header + '\\n\\n' + parts.join('\\n\\n') + '\\n\\n_Monitor cada 3 h._';\nreturn [{ json: { text: text } }];\n"
       }
     },
     {
@@ -277,14 +289,14 @@
       "main": [
         [
           {
-            "node": "¿Bot caido?",
+            "node": "Â¿Bot caido?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "¿Bot caido?": {
+    "Â¿Bot caido?": {
       "main": [
         [
           {
