@@ -183,10 +183,17 @@ export default function RentaDeAulasPage() {
               </a>
             </div>
 
-            <p className="text-white/40 text-xs mt-5 flex items-center gap-1.5">
-              <MapPin size={12} aria-hidden="true" />
-              {ADDRESS}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-white/40 text-xs mt-5">
+              <span className="flex items-center gap-1.5">
+                <MapPin size={12} aria-hidden="true" />
+                {ADDRESS}
+              </span>
+              <span className="hidden sm:inline text-white/20">·</span>
+              <span className="flex items-center gap-1.5">
+                <Clock size={12} aria-hidden="true" />
+                Disponible de lunes a sábado
+              </span>
+            </div>
           </div>
         </section>
 

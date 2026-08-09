@@ -73,7 +73,7 @@ export const incluye = [
   'Mobiliario montado según tu formato',
   'Proyector y pizarrón blanco',
   'Aire acondicionado',
-  'Internet Wi-Fi',
+  'Internet Wi-Fi para todos los asistentes',
   'Servicio de agua',
   'Recepción y registro de asistentes',
   'Área común para coffee break',
