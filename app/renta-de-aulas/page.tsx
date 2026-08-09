@@ -8,6 +8,7 @@ import { aulas, areas, incluye, casosDeUso } from '@/lib/aulas'
 import { ADDRESS, PHONE, EMAIL, YEARS, SITE_URL } from '@/lib/constants'
 import ChatButton from '@/components/ChatButton'
 import GaleriaInstalaciones from '@/components/GaleriaInstalaciones'
+import FormularioRentaAula from '@/components/FormularioRentaAula'
 
 // ─── SEO ──────────────────────────────────────────────────────────────────────
 const TITLE = 'Renta de Aulas y Salones para Cursos en CDMX'
@@ -153,46 +154,55 @@ export default function RentaDeAulasPage() {
               </ol>
             </nav>
 
-            <span className="inline-block bg-white/15 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wide">
-              Renta de aulas · Paseo de la Reforma, CDMX
-            </span>
+            {/* Texto a la izquierda, formulario de cotización a la derecha */}
+            <div className="grid lg:grid-cols-[1fr_400px] gap-10 lg:gap-14 items-start">
+              <div>
+                <span className="inline-block bg-white/15 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wide">
+                  Renta de aulas · Paseo de la Reforma, CDMX
+                </span>
 
-            <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-5 max-w-3xl">
-              Aulas equipadas para impartir tus cursos
-            </h1>
+                <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-5">
+                  Aulas equipadas para impartir tus cursos
+                </h1>
 
-            <p className="text-white/70 text-lg leading-relaxed max-w-2xl mb-8">
-              Rentamos las mismas aulas donde FINDES lleva {YEARS} años capacitando profesionistas.
-              Proyector, pizarrón, aire acondicionado y mobiliario listos desde el primer minuto —
-              tú solo llegas a dar tu clase.
-            </p>
+                <p className="text-white/70 text-lg leading-relaxed mb-8">
+                  Rentamos las mismas aulas donde FINDES lleva {YEARS} años capacitando profesionistas.
+                  Proyector, pizarrón, aire acondicionado y mobiliario listos desde el primer minuto —
+                  tú solo llegas a dar tu clase.
+                </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-              <ChatButton
-                className="inline-flex items-center justify-center gap-2.5 bg-wa text-white font-bold px-8 py-4 rounded-2xl hover:bg-wa-dark active:scale-95 transition-all text-base shadow-xl shadow-wa/20"
-                iconSize={20}
-                attributes={atributos}
-              >
-                Cotizar renta de aula
-              </ChatButton>
-              <a
-                href="#aulas"
-                className="inline-flex items-center justify-center gap-2 text-white/90 font-semibold border-2 border-white/30 px-7 py-3.5 rounded-2xl hover:bg-white/10 transition-colors text-base"
-              >
-                Ver las aulas
-              </a>
-            </div>
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                  <ChatButton
+                    className="inline-flex items-center justify-center gap-2.5 bg-white/10 text-white font-bold px-7 py-3.5 rounded-2xl border-2 border-white/20 hover:bg-white/15 active:scale-95 transition-all text-base"
+                    iconSize={20}
+                    attributes={atributos}
+                  >
+                    Prefiero preguntar por chat
+                  </ChatButton>
+                  <a
+                    href="#aulas"
+                    className="inline-flex items-center justify-center gap-2 text-white/90 font-semibold border-2 border-white/30 px-7 py-3.5 rounded-2xl hover:bg-white/10 transition-colors text-base"
+                  >
+                    Ver las aulas
+                  </a>
+                </div>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-white/40 text-xs mt-5">
-              <span className="flex items-center gap-1.5">
-                <MapPin size={12} aria-hidden="true" />
-                {ADDRESS}
-              </span>
-              <span className="hidden sm:inline text-white/20">·</span>
-              <span className="flex items-center gap-1.5">
-                <Clock size={12} aria-hidden="true" />
-                Disponible de lunes a sábado
-              </span>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-white/40 text-xs mt-5">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin size={12} aria-hidden="true" />
+                    {ADDRESS}
+                  </span>
+                  <span className="hidden sm:inline text-white/20">·</span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock size={12} aria-hidden="true" />
+                    Disponible de lunes a sábado
+                  </span>
+                </div>
+              </div>
+
+              <div id="cotizar" className="scroll-mt-24">
+                <FormularioRentaAula />
+              </div>
             </div>
           </div>
         </section>
