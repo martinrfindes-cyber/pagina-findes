@@ -1,0 +1,223 @@
+{
+  "name": "FINDES-LEAD-AULA",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "findes-lead-aula",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Webhook formulario aulas",
+      "webhookId": "findes-lead-aula"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normaliza el lead del formulario de renta de aulas antes de escribirlo en Chatwoot.\nconst b = $json.body ?? $json;\n\nconst limpio = (v) => (typeof v === 'string' ? v.trim() : '');\n\nconst nombre   = limpio(b.nombre) || 'Lead renta de aulas';\nconst correo   = limpio(b.correo).toLowerCase();\nconst personas = limpio(b.personas);\nconst duracion = limpio(b.duracion);\nconst notas    = limpio(b.notas);\nconst fechaIso = limpio(b.fecha);\n\n// Teléfono: nos quedamos con los 10 dígitos nacionales y armamos el E.164\n// (+52…), que es el único formato que Chatwoot acepta en phone_number.\nconst digitos = limpio(b.celular).replace(/\\D/g, '');\nconst nacional =\n  digitos.length === 13 && digitos.startsWith('521') ? digitos.slice(3) :\n  digitos.length === 12 && digitos.startsWith('52')  ? digitos.slice(2) :\n  digitos;\nconst telefono = nacional.length === 10\n  ? `${nacional.slice(0, 2)} ${nacional.slice(2, 6)} ${nacional.slice(6)}`\n  : '';\nconst telefonoE164 = nacional.length === 10 ? `+52${nacional}` : '';\n\n// Sin correo ni teléfono no hay lead que perseguir: cortamos aquí.\nif (!correo && !telefono) return [];\n\nconst fecha = fechaIso\n  ? new Date(`${fechaIso}T12:00:00`).toLocaleDateString('es-MX', {\n      day: 'numeric', month: 'long', year: 'numeric',\n    })\n  : 'Por definir';\n\n// El dashboard extrae correo y teléfono de los MENSAJES del visitante, no solo\n// del contacto, así que el mensaje los repite en texto plano a propósito.\nconst lineas = [\n  'Solicitud de cotización — Renta de aulas (formulario de la web)',\n  '',\n  `Nombre / empresa: ${nombre}`,\n  `Personas: ${personas || 'Sin especificar'}`,\n  `Fecha tentativa: ${fecha}`,\n  `Duración: ${duracion || 'Por definir'}`,\n  `Teléfono: ${telefono || 'No dejó'}`,\n  `Correo: ${correo || 'No dejó'}`,\n];\nif (notas) lineas.push(`Notas: ${notas}`);\n\nreturn [{\n  json: {\n    nombre, correo, telefono, telefonoE164,\n    personas, duracion, notas, fecha, fechaIso,\n    mensaje: lineas.join('\\n'),\n    sourceId: `form-aula-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,\n  },\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "name": "Preparar lead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/contacts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inbox_id: 1, name: $json.nombre, email: $json.correo || undefined, phone_number: $json.telefonoE164 || undefined, custom_attributes: { origen: 'formulario-renta-aulas' } }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        0
+      ],
+      "name": "Crear contacto",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/contacts/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('Preparar lead').first().json.correo || $('Preparar lead').first().json.telefono }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "name": "Buscar contacto",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// El contacto pudo crearse recién o existir de antes: Chatwoot rechaza correos\n// repetidos con 422, por eso \"Crear contacto\" va con onError = continuar y aquí\n// nos quedamos con el id que haya salido de cualquiera de los dos caminos.\nconst lead = $('Preparar lead').first().json;\n\nconst creado = $('Crear contacto').first().json;\nlet contactId = creado?.payload?.contact?.id ?? null;\n\nif (!contactId) {\n  const encontrados = $('Buscar contacto').first().json?.payload ?? [];\n  const match =\n    encontrados.find((c) => (c.email || '').toLowerCase() === lead.correo) ?? encontrados[0];\n  contactId = match?.id ?? null;\n}\n\nif (!contactId) {\n  throw new Error('No se pudo crear ni encontrar el contacto en Chatwoot');\n}\n\nreturn [{ json: { ...lead, contactId } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "name": "Resolver contacto"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source_id: $json.sourceId, inbox_id: 1, contact_id: $json.contactId, status: 'open', custom_attributes: { origen: 'renta-aulas', servicio: 'Renta de aulas', personas: $json.personas, fecha: $json.fecha, duracion: $json.duracion } }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        0
+      ],
+      "name": "Crear conversación",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://findes-chatwoot.7yidoh.easypanel.host/api/v1/accounts/2/conversations/' + $json.id + '/messages' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ content: $('Resolver contacto').first().json.mensaje, message_type: 'incoming' }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "name": "Mandar mensaje al CRM",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8RROUEbNisEU6Se9",
+          "name": "Chatwoot FINDES admin (martin)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook formulario aulas": {
+      "main": [
+        [
+          {
+            "node": "Preparar lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar lead": {
+      "main": [
+        [
+          {
+            "node": "Crear contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear contacto": {
+      "main": [
+        [
+          {
+            "node": "Buscar contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contacto": {
+      "main": [
+        [
+          {
+            "node": "Resolver contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolver contacto": {
+      "main": [
+        [
+          {
+            "node": "Crear conversación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear conversación": {
+      "main": [
+        [
+          {
+            "node": "Mandar mensaje al CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

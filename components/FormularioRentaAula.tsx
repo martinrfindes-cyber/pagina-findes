@@ -7,19 +7,15 @@ import { WA_NUMBER } from '@/lib/constants'
 /**
  * Formulario de cotización de renta de aula (hero de /renta-de-aulas).
  *
- * No hay backend: al enviar arma un mensaje de WhatsApp ya redactado y abre
- * el chat con FINDES. Es el camino con menos fricción — el prospecto solo
- * llena 4 campos, toca "Enviar" y el lead llega al celular que sí se contesta.
- *
- * Si algún día quieres que el lead también caiga en n8n/CRM, basta con definir
- * NEXT_PUBLIC_LEADS_WEBHOOK: se hace un POST silencioso (fire and forget) y,
- * si falla, el usuario ni se entera porque WhatsApp ya se abrió.
+ * Al enviar hace dos cosas en paralelo:
+ *  1. Registra el lead en /api/lead-aula → n8n → Chatwoot, para que aparezca
+ *     en el dashboard del CRM aunque la persona nunca mande el WhatsApp.
+ *  2. Abre WhatsApp con el mensaje ya redactado: el prospecto solo toca
+ *     "Enviar" y el lead llega al celular que sí se contesta.
  */
 
 const OPCIONES_PERSONAS = ['1 a 15', '16 a 30', '31 a 50', 'Más de 50'] as const
 const OPCIONES_DURACION = ['Por horas', 'Medio día', 'Día completo', 'Varios días'] as const
-
-const WEBHOOK = process.env.NEXT_PUBLIC_LEADS_WEBHOOK
 
 interface Errores {
   nombre?: string
@@ -36,6 +32,8 @@ export default function FormularioRentaAula() {
   const [fecha,    setFecha]    = useState('')
   const [duracion, setDuracion] = useState('')
   const [notas,    setNotas]    = useState('')
+  /** Honeypot anti-spam: invisible para las personas, irresistible para los bots. */
+  const [web,      setWeb]      = useState('')
 
   const [errores, setErrores] = useState<Errores>({})
   const [enviado, setEnviado] = useState(false)
@@ -76,19 +74,14 @@ export default function FormularioRentaAula() {
     setWaUrl(url)
     setEnviado(true)
 
-    // Copia del lead al webhook, si está configurado. Nunca bloquea el envío.
-    if (WEBHOOK) {
-      fetch(WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          origen: 'renta-aulas',
-          servicio: 'Renta de aulas',
-          nombre, celular, correo, personas, fecha, duracion, notas,
-        }),
-        keepalive: true,
-      }).catch(() => { /* el lead ya va por WhatsApp */ })
-    }
+    // Registra el lead en el CRM. Fire and forget: si falla, el lead igual va
+    // por WhatsApp, así que no le mostramos ningún error a la persona.
+    fetch('/api/lead-aula', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, celular, correo, personas, fecha, duracion, notas, web }),
+      keepalive: true,
+    }).catch(() => { /* el lead ya va por WhatsApp */ })
 
     window.open(url, '_blank', 'noopener,noreferrer')
   }
@@ -251,6 +244,18 @@ export default function FormularioRentaAula() {
           />
         </Campo>
       </div>
+
+      {/* Honeypot: fuera de pantalla y fuera del tab order, solo lo llenan bots */}
+      <input
+        type="text"
+        name="web"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={web}
+        onChange={(e) => setWeb(e.target.value)}
+        className="absolute left-[-9999px] w-px h-px opacity-0"
+      />
 
       <button
         type="submit"
