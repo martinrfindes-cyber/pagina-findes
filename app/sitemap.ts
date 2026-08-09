@@ -14,6 +14,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
+  const rentaAulas: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/renta-de-aulas`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+  ]
+
   const cursoPages: MetadataRoute.Sitemap = cursos.map((c) => ({
     url: `${SITE_URL}/cursos/${c.slug}`,
     lastModified,
@@ -21,5 +30,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  return [...home, ...cursoPages]
+  return [...home, ...rentaAulas, ...cursoPages]
 }

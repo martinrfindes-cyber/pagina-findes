@@ -8,6 +8,7 @@ import AutoridadFindes from '@/components/AutoridadFindes'
 import PorQueFindes from '@/components/PorQueFindes'
 import ProximosCursos from '@/components/ProximosCursos'
 import CapacitacionEmpresas from '@/components/CapacitacionEmpresas'
+import RentaAulas from '@/components/RentaAulas'
 import CallToAction from '@/components/CallToAction'
 import Footer from '@/components/Footer'
 import WhatsAppFloat from '@/components/WhatsAppFloat'
@@ -26,6 +27,7 @@ export default function Home() {
         <PorQueFindes />
         <ProximosCursos />
         <CapacitacionEmpresas />
+        <RentaAulas />
         <CallToAction />
       </main>
       <Footer />

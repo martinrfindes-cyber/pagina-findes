@@ -2,6 +2,7 @@ const links = [
   { label: 'Rutas de Aprendizaje', href: '#rutas' },
   { label: 'Próximos Cursos',      href: '#proximos-cursos' },
   { label: 'Para Empresas',        href: '#empresas' },
+  { label: 'Renta de Aulas',       href: '/renta-de-aulas' },
   { label: 'Contacto',             href: '#contacto' },
 ]
 

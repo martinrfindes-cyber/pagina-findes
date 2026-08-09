@@ -7,6 +7,7 @@ import CursoSearch from './CursoSearch'
 const navLinks = [
   { label: 'Rutas de Aprendizaje', href: '/#rutas' },
   { label: 'Próximos Cursos',      href: '/#proximos-cursos' },
+  { label: 'Renta de Aulas',       href: '/renta-de-aulas' },
   { label: 'Contacto',             href: '/#contacto' },
 ]
 
