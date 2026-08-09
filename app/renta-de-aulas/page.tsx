@@ -234,7 +234,7 @@ export default function RentaDeAulasPage() {
                       )}
                       <span className="flex items-center gap-1.5">
                         <Projector size={13} className="text-primary" aria-hidden="true" />
-                        Montaje {aula.montaje.toLowerCase()}
+                        Montaje: {aula.montaje}
                       </span>
                     </div>
 
